@@ -18,3 +18,21 @@ void counting_sort(unsigned int* arr, size_t sz, int max) {
 		arr[k++] = j;
 	}
 }
+
+// Creates a random array where elements are in the range 0...max
+unsigned int *random_array(int size, int max) {
+    unsigned int *array = (unsigned int*)malloc(size*sizeof(unsigned int));
+    for (int i = 0; i < size; i++) {
+        array[i] = rand() % (max + 1);
+    }
+    return array;
+}
+
+bool is_sorted(unsigned int *arr, size_t sz) {
+	for (int i = 1; i < sz; i++) {
+		if (arr[i-1] > arr[i]) {
+			return false;
+		}
+	}
+	return true;
+}
