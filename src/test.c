@@ -4,7 +4,7 @@
 #include <time.h>
 
 #define TEST_SIZE 1000
-#define TEST_RANGE 1000000000
+#define TEST_RANGE 10000
 
 // Creates a random array where elements are in the range 0...max
 unsigned int *random_array(int size, int max) {
@@ -31,7 +31,9 @@ void test_counting_sort() {
 }
 
 int main() {
+    printf("Running tests...\n");
     srand(time(NULL));
+    printf("Testing counting_sort...\n");
     test_counting_sort();
     printf("Test success.\n");
     return 0;

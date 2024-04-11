@@ -3,7 +3,7 @@
 void counting_sort(unsigned int* arr, size_t sz, int max) {
 	int counts[max+1];
 	// TODO: Virtual initialization 
-	memset(counts, 0, max*sizeof(int));
+	memset(counts, 0, (max+1)*sizeof(int));
 	for (int i = 0; i < sz; i++) {
 		counts[arr[i]] += 1;
 	}
