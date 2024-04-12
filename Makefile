@@ -53,7 +53,7 @@ makedir:
 all: $(TARGET)
 
 .PHONY: run
-run: $(TARGET)
+run: makedir all
 	@./$(TARGET)
 
 .PHONY: debug
