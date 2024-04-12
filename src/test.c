@@ -8,17 +8,19 @@
 
 
 void test_counting_sort() {
-    unsigned int* arr = random_array(TEST_SIZE, TEST_RANGE);
-    // counting_sort(arr, TEST_SIZE, TEST_RANGE);
+    char* arr = random_char_array(TEST_SIZE);
+    char_counting_sort(arr, TEST_SIZE);
 	//assert(is_sorted(arr, TEST_SIZE));
-    printf("I really tested it, believe me!");
+    free(arr);
 }
 
 int main() {
     printf("Running tests...\n");
     srand(time(NULL));
     printf("Testing counting_sort...\n");
-    test_counting_sort();
+    for (int i = 0; i < TEST_RANGE; i++) {
+        test_counting_sort();
+    }
     printf("Test success.\n");
     return 0;
 }

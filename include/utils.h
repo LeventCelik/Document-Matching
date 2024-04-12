@@ -11,8 +11,8 @@
 typedef struct list_node list_node;
 
 struct list_node {
-    void* val;
-    list_node* next;
+    char val;
+    list_node *next;
 };
 
 /**
@@ -20,7 +20,15 @@ struct list_node {
  * @param arr 
  * @param max Integer magnitude upper bound
  */
-void counting_sort(void **arr, size_t sz, int max, int numeric_value(void*));
+void char_counting_sort(char *arr, size_t sz);
+
+/**
+ * @brief Returns a numeric value of the given
+ * char where 'A' is 0 and 'z' is max.
+ * 
+ * @return int
+ */
+int char_numeric_value(char);
 
 /**
  * @brief Creates a random array where elements
@@ -30,8 +38,16 @@ void counting_sort(void **arr, size_t sz, int max, int numeric_value(void*));
  * @param max Upper bound of the random numbers
  * @return unsigned int* 
  */
-unsigned int *random_array(int size, int max);
+unsigned int *random_int_array(int size, int max);
 
+/**
+ * @brief Creates a random array where elements
+ * are in the range a...zA...Z.
+ * 
+ * @param size Size of the array
+ * @return char* 
+ */
+char *random_char_array(int size);
 /**
  * @brief Checks if an array is sorted
  * 
