@@ -7,15 +7,33 @@
 
 /**
  * @brief Simple list node holding
- * a generic value and a pointer
+ * a char value and a pointer
  * to the next node.
  */
-typedef struct list_node list_node;
-
-struct list_node {
+typedef struct str_list_node str_list_node;
+typedef struct int_list_node int_list_node;
+struct str_list_node {
 	char *val;
-	list_node *next;
+	str_list_node *next;
 };
+
+struct int_list_node {
+	int val;
+	int_list_node *next;
+};
+
+void str_external_counting_sort(int *indices, char **actual_arr, size_t sz,
+								int str_len);
+
+/**
+ * @brief Sorts an array of strings in linear time.
+ *
+ * @param arr array of strings (char*)
+ * @param sz array size
+ * @param str_len index of sorting key
+ */
+
+void str_radix_sort(char **arr, size_t sz, int str_len);
 
 /**
  * @brief Sorts an array of strings by the char at a given
@@ -29,7 +47,7 @@ void str_counting_sort_by_char(char **arr, size_t sz, int index);
 
 /**
  * @brief Returns a numeric value of the given
- * char where 'A' is 0 and 'z' is max.
+ * char where '$'=0 'A'=1 and 'z'=max.
  *
  * @return int
  */
