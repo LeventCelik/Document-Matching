@@ -12,9 +12,9 @@
  */
 typedef struct list_node list_node;
 struct list_node {
-	// TODO: Fix references and casting
 	void *val;
 	list_node *next;
+	list_node *prev;
 };
 
 void str_external_counting_sort(int *indices, char **actual_arr, size_t sz,
