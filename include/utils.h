@@ -10,16 +10,11 @@
  * a char value and a pointer
  * to the next node.
  */
-typedef struct str_list_node str_list_node;
-typedef struct int_list_node int_list_node;
-struct str_list_node {
-	char *val;
-	str_list_node *next;
-};
-
-struct int_list_node {
-	int val;
-	int_list_node *next;
+typedef struct list_node list_node;
+struct list_node {
+	// TODO: Fix references and casting
+	void *val;
+	list_node *next;
 };
 
 void str_external_counting_sort(int *indices, char **actual_arr, size_t sz,
