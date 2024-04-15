@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define DEBUG true
+#define DEBUG false
 
 /**
  * @brief Simple list node holding
