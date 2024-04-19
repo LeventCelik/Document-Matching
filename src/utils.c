@@ -5,19 +5,18 @@ void str_external_counting_sort(int *indices, char **actual_arr, size_t sz,
 	// TODO: In-place sorting
 	// TODO: Work with strings of different sizes
 	int max = char_numeric_value('z');
-	int_list_node **counts =
-		(int_list_node **)malloc((max + 1) * sizeof(int_list_node *));
+	list_node **counts = (list_node **)malloc((max + 1) * sizeof(list_node *));
 	// TODO: Virtual initialization
 	for (int i = 0; i < max + 1; i++) {
 		counts[i] = NULL;
 	}
 	for (int i = 0; i < sz; i++) {
 		int num = char_numeric_value(actual_arr[indices[i]][index]);
-		int_list_node *node = (int_list_node *)malloc(sizeof(int_list_node));
-		node->val = i;
+		list_node *node = (list_node *)malloc(sizeof(list_node));
+		node->val = (void *)i;
 		node->next = NULL;
 		// TODO: Make this O(1) by keeping doubly linked list and an end pointed
-		int_list_node *head = counts[num];
+		list_node *head = counts[num];
 		while (head != NULL && head->next != NULL) {
 			head = head->next;
 		}
@@ -34,9 +33,9 @@ void str_external_counting_sort(int *indices, char **actual_arr, size_t sz,
 			j++;
 			continue;
 		}
-		int_list_node *node = counts[j];
+		list_node *node = counts[j];
 		counts[j] = counts[j]->next;
-		indices[k++] = node->val;
+		indices[k++] = (int)node->val;
 		// TODO: Safety cleanup using global array
 		free(node);
 		node = NULL;
@@ -54,19 +53,18 @@ void str_counting_sort_by_char(char **arr, size_t sz, int index) {
 	// TODO: In-place sorting
 	// TODO: Work with strings of different sizes
 	int max = char_numeric_value('z');
-	str_list_node **counts =
-		(str_list_node **)malloc((max + 1) * sizeof(str_list_node *));
+	list_node **counts = (list_node **)malloc((max + 1) * sizeof(list_node *));
 	// TODO: Virtual initialization
 	for (int i = 0; i < max + 1; i++) {
 		counts[i] = NULL;
 	}
 	for (int i = 0; i < sz; i++) {
 		int num = char_numeric_value(arr[i][index]);
-		str_list_node *node = (str_list_node *)malloc(sizeof(str_list_node));
-		node->val = arr[i];
+		list_node *node = (list_node *)malloc(sizeof(list_node));
+		node->val = (void *)arr[i];
 		node->next = NULL;
 		// TODO: Make this O(1) by keeping doubly linked list and an end pointed
-		str_list_node *head = counts[num];
+		list_node *head = counts[num];
 		while (head != NULL && head->next != NULL) {
 			head = head->next;
 		}
@@ -83,9 +81,9 @@ void str_counting_sort_by_char(char **arr, size_t sz, int index) {
 			j++;
 			continue;
 		}
-		str_list_node *node = counts[j];
+		list_node *node = counts[j];
 		counts[j] = counts[j]->next;
-		arr[k++] = node->val;
+		arr[k++] = (char *)node->val;
 		// TODO: Safety cleanup using global array
 		free(node);
 		node = NULL;
@@ -166,57 +164,3 @@ void print_string_subarray(char **arr, size_t sz, int str_len, int begin,
 		printf("\n");
 	}
 }
-
-// Older version of the functions:
-
-// REASON FOR CHANGE: Not stable, only works on integers.
-
-// void counting_sort(unsigned int* arr, size_t sz, int max) {
-// 	int counts[max+1];
-// 	// TODO: Virtual initialization
-// 	memset(counts, 0, (max+1)*sizeof(int));
-// 	for (int i = 0; i < sz; i++) {
-// 		counts[arr[i]] += 1;
-// 	}
-// 	int j = 0;
-// 	int k = 0;
-// 	while (j < max+1) {
-// 		if (counts[j] == 0) {
-// 			j++;
-// 			continue;
-// 		}
-// 		counts[j] -= 1;
-// 		arr[k++] = j;
-// 	}
-// }
-
-//--------------------------------------------------------
-
-// REASON FOR CHANGE: Requires explicit conversion between char* to void* twice,
-// unnecessarily generic.
-
-// void counting_sort(void **arr, size_t sz, int max, int numeric_value(void*))
-// { 	list_node *counts[max+1];
-// 	// TODO: Virtual initialization
-// 	// TODO: Safety cleanup using global array
-// 	memset(counts, 0, (max+1)*sizeof(list_node*));
-// 	for (int i = 0; i < sz; i++) {
-// 		int num = numeric_value(arr[i]);
-// 		list_node *node = (list_node*) malloc(sizeof(list_node));
-// 		node->val = arr[i];
-// 		node->next = counts[num];
-// 		counts[num] = node;
-// 	}
-// 	int j = 0;
-// 	int k = 0;
-// 	while (j < max+1) {
-// 		if (counts[j] == NULL) {
-// 			j++;
-// 			continue;
-// 		}
-// 		list_node *node = counts[j];
-// 		counts[j] = counts[j]->next;
-// 		arr[k++] = node->val;
-// 		free(node);
-// 	}
-// }
