@@ -19,18 +19,17 @@ struct list_node {
 	list_node *prev;
 };
 struct suffix_array {
-	int *indices;
-	int *lcps;
+	int index;
+	int lcp;
 };
 
 struct block {
 	int nums[3];
 };
 
-int *block_radix_sort(int *blocks, size_t block_size, int *arr,
-					  size_t arr_size);
+int *radix_sort(block *blocks, size_t sz);
 
-int *counting_sort(int **arr, size_t sz, int index);
+int *counting_sort(block *blocks, size_t sz, int index);
 
 /**
  * @brief Creates a random array where elements

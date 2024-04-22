@@ -1,11 +1,11 @@
 #include "utils.h"
 
-int *block_radix_sort(int *blocks, size_t block_size, int *arr,
-					  size_t arr_size) {}
+int *radix_sort(block *blocks, size_t sz) {}
 
-int *int_counting_sort(int *arr, size_t sz) {
+int *counting_sort(block *blocks, size_t sz, int index) {
 	// int *sorted = (int *)malloc(block_size * sizeof(int));
-	// list_node **counts = (list_node **)malloc(block_size * sizeof(list_node *));
+	// list_node **counts = (list_node **)malloc(block_size * sizeof(list_node
+	// *));
 	// // TODO: Virtual initialization
 	// for (int i = 0; i < block_size; i++) {
 	// 	counts[i] = NULL;
