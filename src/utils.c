@@ -1,102 +1,46 @@
 #include "utils.h"
 
-void str_external_counting_sort(int *indices, char **actual_arr, size_t sz,
-								int index) {
-	// TODO: In-place sorting
-	// TODO: Work with strings of different sizes
-	int max = char_numeric_value('z');
-	list_node **counts = (list_node **)malloc((max + 1) * sizeof(list_node *));
-	// TODO: Virtual initialization
-	for (int i = 0; i < max + 1; i++) {
-		counts[i] = NULL;
-	}
-	for (int i = 0; i < sz; i++) {
-		int num = char_numeric_value(actual_arr[indices[i]][index]);
-		list_node *node = (list_node *)malloc(sizeof(list_node));
-		node->val = (void *)i;
-		node->next = NULL;
-		// TODO: Make this O(1) by keeping doubly linked list and an end pointed
-		list_node *head = counts[num];
-		while (head != NULL && head->next != NULL) {
-			head = head->next;
-		}
-		if (head != NULL) {
-			head->next = node;
-		} else {
-			counts[num] = node;
-		}
-	}
-	int j = 0;
-	int k = 0;
-	while (j < max + 1) {
-		if (counts[j] == NULL) {
-			j++;
-			continue;
-		}
-		list_node *node = counts[j];
-		counts[j] = counts[j]->next;
-		indices[k++] = (int)node->val;
-		// TODO: Safety cleanup using global array
-		free(node);
-		node = NULL;
-	}
-	free(counts);
-}
+int *block_radix_sort(int *blocks, size_t block_size, int *arr,
+					  size_t arr_size) {}
 
-void str_radix_sort(char **arr, size_t sz, int str_len) {
-	for (int i = str_len - 1; i >= 0; i++) {
-		str_counting_sort_by_char(arr, sz, i);
-	}
-}
-
-void str_counting_sort_by_char(char **arr, size_t sz, int index) {
-	// TODO: In-place sorting
-	// TODO: Work with strings of different sizes
-	int max = char_numeric_value('z');
-	list_node **counts = (list_node **)malloc((max + 1) * sizeof(list_node *));
-	// TODO: Virtual initialization
-	for (int i = 0; i < max + 1; i++) {
-		counts[i] = NULL;
-	}
-	for (int i = 0; i < sz; i++) {
-		int num = char_numeric_value(arr[i][index]);
-		list_node *node = (list_node *)malloc(sizeof(list_node));
-		node->val = (void *)arr[i];
-		node->next = NULL;
-		// TODO: Make this O(1) by keeping doubly linked list and an end pointed
-		list_node *head = counts[num];
-		while (head != NULL && head->next != NULL) {
-			head = head->next;
-		}
-		if (head != NULL) {
-			head->next = node;
-		} else {
-			counts[num] = node;
-		}
-	}
-	int j = 0;
-	int k = 0;
-	while (j < max + 1) {
-		if (counts[j] == NULL) {
-			j++;
-			continue;
-		}
-		list_node *node = counts[j];
-		counts[j] = counts[j]->next;
-		arr[k++] = (char *)node->val;
-		// TODO: Safety cleanup using global array
-		free(node);
-		node = NULL;
-	}
-	free(counts);
-}
-
-int char_numeric_value(char c) {
-	if (c == '$')
-		return 0;
-	if (c - 'a' >= 0)
-		return 'Z' - 'A' + 1 + c - 'a' + 1;
-	return c - 'A' + 1;
+int *int_counting_sort(int *arr, size_t sz) {
+	// int *sorted = (int *)malloc(block_size * sizeof(int));
+	// list_node **counts = (list_node **)malloc(block_size * sizeof(list_node *));
+	// // TODO: Virtual initialization
+	// for (int i = 0; i < block_size; i++) {
+	// 	counts[i] = NULL;
+	// }
+	// for (int i = 0; i < block_size; i++) {
+	// 	int num = char_numeric_value(actual_arr[indices[i]][index]);
+	// 	list_node *node = (list_node *)malloc(sizeof(list_node));
+	// 	node->val = i;
+	// 	node->next = NULL;
+	// 	// TODO: Make this O(1) by keeping doubly linked list and an end pointed
+	// 	list_node *head = counts[num];
+	// 	while (head != NULL && head->next != NULL) {
+	// 		head = head->next;
+	// 	}
+	// 	if (head != NULL) {
+	// 		head->next = node;
+	// 	} else {
+	// 		counts[num] = node;
+	// 	}
+	// }
+	// int j = 0;
+	// int k = 0;
+	// while (j < max + 1) {
+	// 	if (counts[j] == NULL) {
+	// 		j++;
+	// 		continue;
+	// 	}
+	// 	list_node *node = counts[j];
+	// 	counts[j] = counts[j]->next;
+	// 	indices[k++] = node->val;
+	// 	// TODO: Safety cleanup using global array
+	// 	free(node);
+	// 	node = NULL;
+	// }
+	// free(counts);
 }
 
 unsigned int *random_int_array(int size, int max) {
@@ -107,29 +51,7 @@ unsigned int *random_int_array(int size, int max) {
 	return array;
 }
 
-char **random_str_array(int size, int len) {
-	char **arr = (char **)malloc(size * sizeof(char *));
-	for (int i = 0; i < size; i++) {
-		arr[i] = random_char_array(len);
-	}
-	return arr;
-}
-
-char *random_char_array(int size) {
-	char *array = (char *)malloc(size * sizeof(char));
-	int range = ('z' - 'a' + 1);
-	for (int i = 0; i < size; i++) {
-		int num = rand() % (2 * range);
-		if (num < range) {
-			array[i] = 'a' + num;
-		} else {
-			array[i] = 'A' + num - range;
-		}
-	}
-	return array;
-}
-
-bool is_int_arr_sorted(unsigned int *arr, size_t sz) {
+bool is_arr_sorted(unsigned int *arr, size_t sz) {
 	for (int i = 1; i < sz; i++) {
 		if (arr[i - 1] > arr[i]) {
 			return false;
@@ -138,29 +60,10 @@ bool is_int_arr_sorted(unsigned int *arr, size_t sz) {
 	return true;
 }
 
-bool is_str_array_sorted(char **arr, size_t sz, int str_len) {
+void print_int_array(int *arr, size_t sz) {
+	printf("[");
 	for (int i = 0; i < sz - 1; i++) {
-		if (strncmp(arr[i], arr[i + 1], str_len) > 0) {
-			printf("Strings #%d and #%d are out of order.\n", i + 1, i + 2);
-			// print_string_subarray(arr, sz, strlen(arr[i]), i, i+5);
-			print_string_array(arr, sz, str_len);
-			return false;
-		}
+		printf("%d, ", arr[i]);
 	}
-	return true;
-}
-
-void print_string_array(char **arr, size_t sz, int str_len) {
-	print_string_subarray(arr, sz, str_len, 0, sz);
-}
-
-void print_string_subarray(char **arr, size_t sz, int str_len, int begin,
-						   int end) {
-	for (int i = begin; i < end && i < sz; i++) {
-		printf("%d:", i + 1);
-		for (int j = 0; j < str_len; j++) {
-			printf("%c", arr[i][j]);
-		}
-		printf("\n");
-	}
+	printf("%d]\n", arr[sz - 1]);
 }
