@@ -22,7 +22,7 @@ suffix *build_suffix_array(int *str, int sz) {
 	}
 
 	// Blocks with indices 0 and 1 mod 3
-	block binary_blocks[block_count];
+	block *binary_blocks = (block *)malloc(block_count * sizeof(block));
 	int j = 0;
 	for (int i = 0; i < sz; i++) {
 		if (i % 3 != 2) {
@@ -53,9 +53,17 @@ suffix *build_suffix_array(int *str, int sz) {
 	if (DEBUG) {
 		print_int_array(indices, block_count);
 	}
-	suffix *binary_array = build_suffix_array(indices, block_count);
+
+	//* suffix *binary_array = build_suffix_array(indices, block_count);
 
 	// Build suffix array from index 2:
 
+	int mod_2_size = result.quot;
+	suffix *indices_2_mod_3 = (suffix *)malloc(mod_2_size * sizeof(suffix *));
+	
+
 	// Combine suffix arrays:
+
+	// Free memory:
+	free(binary_blocks);
 }
