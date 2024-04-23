@@ -16,7 +16,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define DEBUG false
+#define DEBUG true
 
 #define BLOCK_SIZE 3
 
@@ -26,14 +26,14 @@
  * to the next node.
  */
 typedef struct node node;
-typedef struct suffix_array suffix_array;
+typedef struct suffix suffix;
 typedef struct block block;
 struct node {
 	int val;
 	node *next;
 	node *prev;
 };
-struct suffix_array {
+struct suffix {
 	int index;
 	int lcp;
 };
@@ -44,13 +44,14 @@ struct block {
 
 block create_block();
 
-int *radix_sort(block *blocks, int sz);
+int *radix_sort(block *blocks, int block_sz, int alphabet_sz);
 
-void counting_sort(int *indices, block *blocks, int sz, int index);
+void counting_sort(int *indices, block *blocks, int block_sz, int alphabet_sz,
+				   int index);
 
 /**
  * @brief Creates a random array where elements
- * are in the range 0...max
+ * are in the range 1...max
  *
  * @param size Size of the array
  * @param max Upper bound of the random numbers
@@ -72,5 +73,7 @@ void print_int_array(int *arr, int sz);
 void print_block(block b);
 
 void print_block_array(block *blocks, int sz);
+
+void print_indexed_block_array(block *blocks, int sz, int *indices);
 
 #endif /* UTILS_H */

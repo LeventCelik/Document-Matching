@@ -1,6 +1,6 @@
 #include "document_matching.h"
 
-suffix_array *build_suffix_array(int *str, int sz) {
+suffix *build_suffix_array(int *str, int sz) {
 	/**
 	 * Recursively builds the suffix array by building an array
 	 * of suffixes with starting indices 0 and 1 mod 3, and an
@@ -40,8 +40,20 @@ suffix_array *build_suffix_array(int *str, int sz) {
 		print_block_array(binary_blocks, block_count);
 	}
 
-	int *sorted_blocks = radix_sort(binary_blocks, block_count);
-	//  suffix_array *indices_0_1_mod_3 = build_suffix_array():
+	int *sorted_blocks = radix_sort(binary_blocks, block_count, sz);
+	if (DEBUG) {
+		print_int_array(sorted_blocks, block_count);
+		print_indexed_block_array(binary_blocks, block_count, sorted_blocks);
+	}
+
+	int *indices = (int *)malloc(block_count * sizeof(int));
+	for (int i = 0; i < block_count; i++) {
+		indices[sorted_blocks[i]] = i; // ! Will not handle non-unique blocks
+	}
+	if (DEBUG) {
+		print_int_array(indices, block_count);
+	}
+	suffix *binary_array = build_suffix_array(indices, block_count);
 
 	// Build suffix array from index 2:
 

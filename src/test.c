@@ -6,11 +6,8 @@
 #define STR_LEN 50
 
 void test_document_matching() {
-	int test_count = 19;
-	int arr[test_count];
-	for (int i = 0; i < test_count - 1; i++) {
-		arr[i] = i;
-	}
+	int test_count = 10;
+	int* arr = random_int_array(test_count, test_count);
 	arr[test_count - 1] = 0;
 	build_suffix_array(arr, test_count);
 }
