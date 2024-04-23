@@ -12,4 +12,4 @@
  * @param sz Size of string, including the end character 0 ('$')
  * @return suffix_array
  */
-suffix_array *build_suffix_array(int *str, size_t sz);
+suffix_array *build_suffix_array(int *str, int sz);

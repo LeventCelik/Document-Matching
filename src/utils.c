@@ -1,46 +1,71 @@
 #include "utils.h"
 
-int *radix_sort(block *blocks, size_t sz) {}
+block create_block() {
+	block b;
+	for (int i = 0; i < BLOCK_SIZE; i++) {
+		b.nums[i] = -1;
+	}
+	return b;
+}
 
-int *counting_sort(block *blocks, size_t sz, int index) {
-	// int *sorted = (int *)malloc(block_size * sizeof(int));
-	// list_node **counts = (list_node **)malloc(block_size * sizeof(list_node
-	// *));
-	// // TODO: Virtual initialization
-	// for (int i = 0; i < block_size; i++) {
-	// 	counts[i] = NULL;
-	// }
-	// for (int i = 0; i < block_size; i++) {
-	// 	int num = char_numeric_value(actual_arr[indices[i]][index]);
-	// 	list_node *node = (list_node *)malloc(sizeof(list_node));
-	// 	node->val = i;
-	// 	node->next = NULL;
-	// 	// TODO: Make this O(1) by keeping doubly linked list and an end pointed
-	// 	list_node *head = counts[num];
-	// 	while (head != NULL && head->next != NULL) {
-	// 		head = head->next;
-	// 	}
-	// 	if (head != NULL) {
-	// 		head->next = node;
-	// 	} else {
-	// 		counts[num] = node;
-	// 	}
-	// }
-	// int j = 0;
-	// int k = 0;
-	// while (j < max + 1) {
-	// 	if (counts[j] == NULL) {
-	// 		j++;
-	// 		continue;
-	// 	}
-	// 	list_node *node = counts[j];
-	// 	counts[j] = counts[j]->next;
-	// 	indices[k++] = node->val;
-	// 	// TODO: Safety cleanup using global array
-	// 	free(node);
-	// 	node = NULL;
-	// }
-	// free(counts);
+int *radix_sort(block *blocks, int sz) {
+	int *indices = (int *)malloc(sz * sizeof(int));
+	if (indices == NULL) {
+		// TODO: Do the same in other malloc calls well.
+		fprintf(stderr, "Radix sort: Failed to allocate memory for indices.\n");
+		return NULL;
+	}
+
+	// TODO: Virtual init
+	for (int i = 0; i < sz; i++) {
+		indices[i] = i;
+	}
+
+	for (int i = BLOCK_SIZE - 1; i >= 0; i--) {
+		counting_sort(indices, blocks, sz, i);
+	}
+	return indices;
+}
+
+void counting_sort(int *indices, block *blocks, int sz, int index) {
+	node **buckets = (node **)malloc(sz * sizeof(node *));
+
+	// TODO: Virtual initialization
+	for (int i = 0; i < sz; i++) {
+		buckets[i] = NULL;
+	}
+
+	for (int i = 0; i < sz; i++) {
+		int num = blocks[indices[i]].nums[index];
+		node n;
+		n.val = i;
+		n.next = NULL;
+		// TODO: Make this O(1) by keeping doubly linked list and an end pointed
+		node *head = buckets[num];
+		while (head != NULL && head->next != NULL) {
+			head = head->next;
+		}
+		if (head != NULL) {
+			head->next = &n;
+		} else {
+			buckets[num] = &n;
+		}
+	}
+	int j = 0;
+	int k = 0;
+	while (j < sz) {
+		if (buckets[j] == NULL) {
+			j++;
+			continue;
+		}
+		node *node = buckets[j];
+		buckets[j] = buckets[j]->next;
+		indices[k++] = node->val;
+		// TODO: Safety cleanup using global array
+		free(node);
+		node = NULL;
+	}
+	free(buckets);
 }
 
 unsigned int *random_int_array(int size, int max) {
@@ -51,11 +76,36 @@ unsigned int *random_int_array(int size, int max) {
 	return array;
 }
 
-bool is_arr_sorted(int *arr, size_t sz) {
+bool is_arr_sorted(int *arr, int sz) {
 	for (int i = 1; i < sz; i++) {
 		if (arr[i - 1] > arr[i]) {
 			return false;
 		}
 	}
 	return true;
+}
+
+void print_int_array(int *arr, int sz) {
+	printf("[");
+	for (int i = 0; i < sz - 1; i++) {
+		printf("%d, ", arr[i]);
+	}
+	printf("%d]\n", arr[sz - 1]);
+}
+
+void print_block(block b) {
+	printf("Block: [");
+	for (int i = 0; i < BLOCK_SIZE - 1; i++) {
+		printf("%d, ", b.nums[i]);
+	}
+	printf("%d]\n", b.nums[BLOCK_SIZE - 1]);
+}
+
+void print_block_array(block *blocks, int sz) {
+	printf("%d blocks: [\n", sz);
+	for (int i = 0; i < sz; i++) {
+		printf("\t%d. ", i);
+		print_block(blocks[i]);
+	}
+	printf("]\n");
 }

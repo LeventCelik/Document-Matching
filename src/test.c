@@ -6,7 +6,7 @@
 #define STR_LEN 50
 
 void test_document_matching() {
-	int test_count = 18;
+	int test_count = 19;
 	int arr[test_count];
 	for (int i = 0; i < test_count - 1; i++) {
 		arr[i] = i;

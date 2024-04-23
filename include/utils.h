@@ -1,3 +1,16 @@
+/**
+ * @file utils.h
+ * @author your name (you@domain.com)
+ * @brief
+ * @version 0.1
+ * @date 2024-04-22
+ *
+ * @copyright Copyright (c) 2024
+ *
+ */
+#ifndef UTILS_H
+#define UTILS_H
+
 #include "string.h"
 #include <stdbool.h>
 #include <stdio.h>
@@ -12,13 +25,13 @@
  * a char value and a pointer
  * to the next node.
  */
-typedef struct list_node list_node;
+typedef struct node node;
 typedef struct suffix_array suffix_array;
 typedef struct block block;
-struct list_node {
-	int *val;
-	list_node *next;
-	list_node *prev;
+struct node {
+	int val;
+	node *next;
+	node *prev;
 };
 struct suffix_array {
 	int index;
@@ -29,17 +42,11 @@ struct block {
 	int nums[BLOCK_SIZE];
 };
 
-block create_block() {
-	block b;
-	for (int i = 0; i < BLOCK_SIZE; i++) {
-		b.nums[i] = -1;
-	}
-	return b;
-}
+block create_block();
 
-int *radix_sort(block *blocks, size_t sz);
+int *radix_sort(block *blocks, int sz);
 
-int *counting_sort(block *blocks, size_t sz, int index);
+void counting_sort(int *indices, block *blocks, int sz, int index);
 
 /**
  * @brief Creates a random array where elements
@@ -58,29 +65,12 @@ unsigned int *random_int_array(int size, int max);
  * @param sz
  * @return true if the array is sorted
  */
-bool is_arr_sorted(int *arr, size_t sz);
+bool is_arr_sorted(int *arr, int sz);
 
-inline void print_int_array(int *arr, size_t sz) {
-	printf("[");
-	for (int i = 0; i < sz - 1; i++) {
-		printf("%d, ", arr[i]);
-	}
-	printf("%d]\n", arr[sz - 1]);
-}
+void print_int_array(int *arr, int sz);
 
-inline void print_block(block b) {
-	printf("Block: [");
-	for (int i = 0; i < BLOCK_SIZE - 1; i++) {
-		printf("%d, ", b.nums[i]);
-	}
-	printf("%d]\n", b.nums[BLOCK_SIZE - 1]);
-}
+void print_block(block b);
 
-inline void print_block_array(block *blocks, size_t sz) {
-	printf("%lu blocks: [\n", sz);
-	for (int i = 0; i < sz; i++) {
-		printf("\t%d: ", i);
-		print_block(blocks[i]);
-	}
-	printf("]\n");
-}
+void print_block_array(block *blocks, int sz);
+
+#endif /* UTILS_H */
