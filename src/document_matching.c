@@ -22,22 +22,22 @@ suffix_array *build_suffix_array(int *str, size_t sz) {
 	}
 
 	// Blocks with indices 0 and 1 mod 3
-	int *binary_blocks = (int *)malloc(block_count * sizeof(int));
+	block binary_blocks[block_count];
 	int j = 0;
 	for (int i = 0; i < sz; i++) {
-		if (i % 3 == 0) {
-			binary_blocks[j++] = i;
-		}
-	}
-	for (int i = 0; i < sz; i++) {
-		if (i % 3 == 1) {
-			binary_blocks[j++] = i;
+		if (i % 3 != 2) {
+			block b = create_block();
+			for (int j = 0; j < BLOCK_SIZE; j++) {
+				if (i + j < sz)
+					b.nums[j] = str[i + j];
+			}
+			binary_blocks[j++] = b;
 		}
 	}
 
 	print_int_array(str, sz);
-	print_int_array(binary_blocks, block_count);
-	int *sorted = block_radix_sort(binary_blocks, block_count, str, sz);
+	print_block_array(binary_blocks, block_count);
+	// int *sorted = block_radix_sort(binary_blocks, block_count, str, sz);
 	//  suffix_array *indices_0_1_mod_3 = build_suffix_array():
 
 	// Build suffix array from index 2:

@@ -51,19 +51,11 @@ unsigned int *random_int_array(int size, int max) {
 	return array;
 }
 
-bool is_arr_sorted(unsigned int *arr, size_t sz) {
+bool is_arr_sorted(int *arr, size_t sz) {
 	for (int i = 1; i < sz; i++) {
 		if (arr[i - 1] > arr[i]) {
 			return false;
 		}
 	}
 	return true;
-}
-
-void print_int_array(int *arr, size_t sz) {
-	printf("[");
-	for (int i = 0; i < sz - 1; i++) {
-		printf("%d, ", arr[i]);
-	}
-	printf("%d]\n", arr[sz - 1]);
 }
