@@ -36,20 +36,8 @@ int *tuple_radix_sort(tuple *tuples, int tuple_count, int alphabet_sz) {
 	return NULL;
 }
 
-int *calculate_ranks(block *blocks, int block_count, int *sorted_indices) {
-	int *ranks = (int *)malloc(block_count * sizeof(int));
-	int equal_element_count = 0;
-	for (int i = 1; i < block_count; i++) {
-		if (equal_blocks(blocks[sorted_indices[i - 1]],
-						 blocks[sorted_indices[i]]))
-			equal_element_count++;
-		ranks[sorted_indices[i]] = i - equal_element_count;
-	}
-	return ranks;
-}
-
-int *radix_sort(block *blocks, int block_count, int alphabet_sz) {
-	// TODO: Handle non-unique blocks
+int *radix_sort(block *blocks, int block_count, int alphabet_sz, int *ranks,
+				bool *non_unique) {
 	int *indices = (int *)malloc(block_count * sizeof(int));
 	if (indices == NULL) {
 		// TODO: Do the same in other malloc calls well.
@@ -63,6 +51,14 @@ int *radix_sort(block *blocks, int block_count, int alphabet_sz) {
 	}
 	for (int i = BLOCK_SIZE - 1; i >= 0; i--) {
 		counting_sort(indices, blocks, block_count, alphabet_sz, i);
+	}
+	int rank = 0;
+	for (int i = 1; i < block_count; i++) {
+		if (!equal_blocks(blocks[indices[i - 1]], blocks[indices[i]]))
+			rank++;
+		else
+			*non_unique = true;
+		ranks[indices[i]] = rank;
 	}
 	return indices;
 }

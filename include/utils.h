@@ -56,12 +56,11 @@ tuple create_tuple(int first, int second, int index);
 
 int *tuple_radix_sort(tuple *tuples, int tuple_count, int alphabet_sz);
 
-int *calculate_ranks(block *blocks, int block_count, int* sorted_indices);
+int *radix_sort(block *blocks, int block_count, int alphabet_sz, int *ranks,
+				bool *non_unique);
 
-int *radix_sort(block *blocks, int block_count, int alphabet_sz);
-
-void counting_sort(int *indices, block *blocks, int block_count, int alphabet_sz,
-				   int index);
+void counting_sort(int *indices, block *blocks, int block_count,
+				   int alphabet_sz, int index);
 
 /**
  * @brief Creates a random array where elements

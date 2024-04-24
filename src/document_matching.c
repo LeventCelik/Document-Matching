@@ -42,34 +42,19 @@ suffix *build_suffix_array(int *str, int sz) {
 		print_int_array(str, sz);
 		print_block_array(blocks, block_count);
 	}
-
-	int *sorted_blocks = radix_sort(blocks, block_count, sz);
+	int *ranks = (int *)malloc(block_count * sizeof(int));
+	bool non_unique = false;
+	int *sorted_blocks =
+		radix_sort(blocks, block_count, sz, ranks, &non_unique);
 	if (DEBUG) {
 		printf("Sorted block indices: ");
 		print_int_array(sorted_blocks, block_count);
 		print_indexed_block_array(blocks, block_count, sorted_blocks);
+		printf("Ranks: ");
+		print_int_array(ranks, block_count);
 	}
 
-	int *recursion_str = (int *)malloc(block_count * sizeof(int));
-	for (int i = 0; i < block_count; i++) {
-		recursion_str[sorted_blocks[i]] = i;
-		// ! Will not handle non-unique blocks
-	}
-	if (DEBUG) {
-		printf("Recursion String before rank equalization: ");
-		print_int_array(recursion_str, block_count);
-	}
-
-	/**
-	 * The 'ranks' after the sort are unique, because they are indices of the
-	 * internal array used during counting. We iterate over them and reduce
-	 * ranks in O(n) time.
-	 */
-
-	int *block_ranks = calculate_ranks(blocks, block_count, sorted_blocks);
-
-		suffix
-			*block_suffixes /**  = build_suffix_array(indices, block_count) */;
+	suffix *block_suffixes /**  = build_suffix_array(indices, block_count) */;
 
 	// Build suffix array from index 2:
 
@@ -98,8 +83,8 @@ suffix *build_suffix_array(int *str, int sz) {
 	blocks = NULL;
 	free(sorted_blocks);
 	sorted_blocks = NULL;
-	free(recursion_str);
-	recursion_str = NULL;
+	free(ranks);
+	ranks = NULL;
 	free(tuple_array);
 	tuple_array = NULL;
 
