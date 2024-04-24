@@ -1,16 +1,56 @@
 #include "utils.h"
 
-block create_block() {
+suffix create_suffix(int index, int lcp) {
+	suffix s;
+	s.index = index;
+	s.lcp = lcp;
+	return s;
+}
+
+block create_block(int index) {
 	block b;
+	b.og_index = index;
 	for (int i = 0; i < BLOCK_SIZE; i++) {
 		b.nums[i] = 0;
 	}
 	return b;
 }
 
-int *radix_sort(block *blocks, int block_sz, int alphabet_sz) {
+bool equal_blocks(block b1, block b2) {
+	for (int i = 0; i < BLOCK_SIZE; i++) {
+		if (b1.nums[i] != b2.nums[i])
+			return false;
+	}
+	return true;
+}
+
+tuple create_tuple(int first, int second, int index) {
+	tuple t;
+	t.first = first;
+	t.second = second;
+	t.og_index = index;
+	return t;
+}
+
+int *tuple_radix_sort(tuple *tuples, int tuple_count, int alphabet_sz) {
+	return NULL;
+}
+
+int *calculate_ranks(block *blocks, int block_count, int *sorted_indices) {
+	int *ranks = (int *)malloc(block_count * sizeof(int));
+	int equal_element_count = 0;
+	for (int i = 1; i < block_count; i++) {
+		if (equal_blocks(blocks[sorted_indices[i - 1]],
+						 blocks[sorted_indices[i]]))
+			equal_element_count++;
+		ranks[sorted_indices[i]] = i - equal_element_count;
+	}
+	return ranks;
+}
+
+int *radix_sort(block *blocks, int block_count, int alphabet_sz) {
 	// TODO: Handle non-unique blocks
-	int *indices = (int *)malloc(block_sz * sizeof(int));
+	int *indices = (int *)malloc(block_count * sizeof(int));
 	if (indices == NULL) {
 		// TODO: Do the same in other malloc calls well.
 		fprintf(stderr, "Radix sort: Failed to allocate memory for indices.\n");
@@ -18,17 +58,17 @@ int *radix_sort(block *blocks, int block_sz, int alphabet_sz) {
 	}
 
 	// TODO: Virtual init
-	for (int i = 0; i < block_sz; i++) {
+	for (int i = 0; i < block_count; i++) {
 		indices[i] = i;
 	}
 	for (int i = BLOCK_SIZE - 1; i >= 0; i--) {
-		counting_sort(indices, blocks, block_sz, alphabet_sz, i);
+		counting_sort(indices, blocks, block_count, alphabet_sz, i);
 	}
 	return indices;
 }
 
-void counting_sort(int *indices, block *blocks, int block_sz, int alphabet_sz,
-				   int index) {
+void counting_sort(int *indices, block *blocks, int block_count,
+				   int alphabet_sz, int index) {
 	node **buckets = (node **)malloc((alphabet_sz + 1) * sizeof(node *));
 
 	// TODO: Virtual initialization
@@ -36,7 +76,7 @@ void counting_sort(int *indices, block *blocks, int block_sz, int alphabet_sz,
 		buckets[i] = NULL;
 	}
 
-	for (int i = 0; i < block_sz; i++) {
+	for (int i = 0; i < block_count; i++) {
 		int num = blocks[indices[i]].nums[index];
 		node *n = (node *)malloc(sizeof(node));
 		n->val = indices[i];
@@ -71,8 +111,8 @@ void counting_sort(int *indices, block *blocks, int block_sz, int alphabet_sz,
 	buckets = NULL;
 }
 
-unsigned int *random_int_array(int size, int max) {
-	unsigned int *array = (unsigned int *)malloc(size * sizeof(unsigned int));
+int *random_int_array(int size, int max) {
+	int *array = (int *)malloc(size * sizeof(int));
 	for (int i = 0; i < size; i++) {
 		array[i] = rand() % (max) + 1;
 	}
@@ -97,7 +137,7 @@ void print_int_array(int *arr, int sz) {
 }
 
 void print_block(block b) {
-	printf("Block: [");
+	printf("Block (%d): [", b.og_index);
 	for (int i = 0; i < BLOCK_SIZE - 1; i++) {
 		printf("%d, ", b.nums[i]);
 	}
@@ -118,6 +158,28 @@ void print_indexed_block_array(block *blocks, int sz, int *indices) {
 	for (int i = 0; i < sz; i++) {
 		printf("\t%d. ", i);
 		print_block(blocks[indices[i]]);
+	}
+	printf("]\n");
+}
+
+void print_tuple(tuple t) {
+	printf("Tuple (%d): (%d, %d)\n", t.og_index, t.first, t.second);
+}
+
+void print_tuple_array(tuple *tuples, int sz) {
+	printf("%d tuples: [\n", sz);
+	for (int i = 0; i < sz; i++) {
+		printf("\t%d. ", i);
+		print_tuple(tuples[i]);
+	}
+	printf("]\n");
+}
+
+void print_indexed_tuple_array(tuple *tuples, int sz, int *indices) {
+	printf("%d tuples: [\n", sz);
+	for (int i = 0; i < sz; i++) {
+		printf("\t%d. ", i);
+		print_tuple(tuples[indices[i]]);
 	}
 	printf("]\n");
 }

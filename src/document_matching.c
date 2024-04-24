@@ -8,7 +8,9 @@ suffix *build_suffix_array(int *str, int sz) {
 	 * combining the two.
 	 */
 
-	// Base case:
+	// Base cases:
+	if (sz <= 0)
+		return NULL;
 
 	// Build suffix array from indices 0 and 1 mod 3:
 
@@ -22,48 +24,84 @@ suffix *build_suffix_array(int *str, int sz) {
 	}
 
 	// Blocks with indices 0 and 1 mod 3
-	block *binary_blocks = (block *)malloc(block_count * sizeof(block));
+	block *blocks = (block *)malloc(block_count * sizeof(block));
 	int j = 0;
 	for (int i = 0; i < sz; i++) {
 		if (i % 3 != 2) {
-			block b = create_block();
+			block b = create_block(i);
 			for (int k = 0; k < BLOCK_SIZE; k++) {
 				if (i + k < sz)
 					b.nums[k] = str[i + k];
 			}
-			binary_blocks[j++] = b;
+			blocks[j++] = b;
 		}
 	}
 
 	if (DEBUG) {
+		printf("Original string: ");
 		print_int_array(str, sz);
-		print_block_array(binary_blocks, block_count);
+		print_block_array(blocks, block_count);
 	}
 
-	int *sorted_blocks = radix_sort(binary_blocks, block_count, sz);
+	int *sorted_blocks = radix_sort(blocks, block_count, sz);
 	if (DEBUG) {
+		printf("Sorted block indices: ");
 		print_int_array(sorted_blocks, block_count);
-		print_indexed_block_array(binary_blocks, block_count, sorted_blocks);
+		print_indexed_block_array(blocks, block_count, sorted_blocks);
 	}
 
-	int *indices = (int *)malloc(block_count * sizeof(int));
+	int *recursion_str = (int *)malloc(block_count * sizeof(int));
 	for (int i = 0; i < block_count; i++) {
-		indices[sorted_blocks[i]] = i; // ! Will not handle non-unique blocks
+		recursion_str[sorted_blocks[i]] = i;
+		// ! Will not handle non-unique blocks
 	}
 	if (DEBUG) {
-		print_int_array(indices, block_count);
+		printf("Recursion String before rank equalization: ");
+		print_int_array(recursion_str, block_count);
 	}
 
-	//* suffix *binary_array = build_suffix_array(indices, block_count);
+	/**
+	 * The 'ranks' after the sort are unique, because they are indices of the
+	 * internal array used during counting. We iterate over them and reduce
+	 * ranks in O(n) time.
+	 */
+
+	int *block_ranks = calculate_ranks(blocks, block_count, sorted_blocks);
+
+		suffix
+			*block_suffixes /**  = build_suffix_array(indices, block_count) */;
 
 	// Build suffix array from index 2:
 
-	int mod_2_size = result.quot;
-	suffix *indices_2_mod_3 = (suffix *)malloc(mod_2_size * sizeof(suffix *));
-	
+	int tuple_count = result.quot;
+	tuple *tuples = (tuple *)malloc(tuple_count * sizeof(tuple));
+	j = 0;
+	int k = 2;
+	for (int i = 2; i < sz; i += 3) {
+		int first = str[i];
+		int second = 0;
+		if (i + 1 < sz) {
+			second = block_suffixes[k].index;
+			k += 2;
+		}
+		tuples[j++] = create_tuple(first, second, i);
+	}
+
+	//? I think these are the even suffixes
+	int *sorted_tuples = tuple_radix_sort(tuples, tuple_count, sz);
+	suffix *tuple_array /** = (suffix *)malloc(tuple_count * sizeof(suffix)) */;
 
 	// Combine suffix arrays:
 
 	// Free memory:
-	free(binary_blocks);
+	free(blocks);
+	blocks = NULL;
+	free(sorted_blocks);
+	sorted_blocks = NULL;
+	free(recursion_str);
+	recursion_str = NULL;
+	free(tuple_array);
+	tuple_array = NULL;
+
+	return NULL;
 }

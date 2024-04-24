@@ -26,27 +26,41 @@
  * to the next node.
  */
 typedef struct node node;
-typedef struct suffix suffix;
-typedef struct block block;
 struct node {
 	int val;
 	node *next;
 	node *prev;
 };
-struct suffix {
+
+typedef struct {
 	int index;
 	int lcp;
-};
+} suffix;
 
-struct block {
+suffix create_suffix(int index, int lcp);
+typedef struct {
 	int nums[BLOCK_SIZE];
-};
+	int og_index;
+} block;
 
-block create_block();
+block create_block(int index);
+bool equal_blocks(block b1, block b2);
 
-int *radix_sort(block *blocks, int block_sz, int alphabet_sz);
+typedef struct {
+	int first;
+	int second;
+	int og_index;
+} tuple;
 
-void counting_sort(int *indices, block *blocks, int block_sz, int alphabet_sz,
+tuple create_tuple(int first, int second, int index);
+
+int *tuple_radix_sort(tuple *tuples, int tuple_count, int alphabet_sz);
+
+int *calculate_ranks(block *blocks, int block_count, int* sorted_indices);
+
+int *radix_sort(block *blocks, int block_count, int alphabet_sz);
+
+void counting_sort(int *indices, block *blocks, int block_count, int alphabet_sz,
 				   int index);
 
 /**
@@ -57,7 +71,7 @@ void counting_sort(int *indices, block *blocks, int block_sz, int alphabet_sz,
  * @param max Upper bound of the random numbers
  * @return unsigned int* // TODO: unsigned refactoring
  */
-unsigned int *random_int_array(int size, int max);
+int *random_int_array(int size, int max);
 
 /**
  * @brief Checks if an int array is sorted
@@ -75,5 +89,11 @@ void print_block(block b);
 void print_block_array(block *blocks, int sz);
 
 void print_indexed_block_array(block *blocks, int sz, int *indices);
+
+void print_tuple(tuple t);
+
+void print_tuple_arrat(tuple *tuples, int sz);
+
+void print_indexed_tuple_array(tuple *tuples, int sz, int *indices);
 
 #endif /* UTILS_H */
