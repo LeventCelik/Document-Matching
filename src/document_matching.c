@@ -1,6 +1,6 @@
 #include "document_matching.h"
 
-suffix *build_suffix_array(int *str, int sz) {
+int *build_suffix_array(int *str, int sz) {
 	/**
 	 * Recursively builds the suffix array by building an array
 	 * of suffixes with starting indices 0 and 1 mod 3, and an
@@ -38,23 +38,36 @@ suffix *build_suffix_array(int *str, int sz) {
 	}
 
 	if (DEBUG) {
+		printf("Constructed blocks.\n");
 		printf("Original string: ");
 		print_int_array(str, sz);
 		print_block_array(blocks, block_count);
 	}
 	int *ranks = (int *)malloc(block_count * sizeof(int));
-	bool non_unique = false;
-	int *sorted_blocks =
-		radix_sort(blocks, block_count, sz, ranks, &non_unique);
+	bool unique = true;
+	int *sorted_indices = radix_sort(blocks, block_count, sz, ranks, &unique);
 	if (DEBUG) {
 		printf("Sorted block indices: ");
-		print_int_array(sorted_blocks, block_count);
-		print_indexed_block_array(blocks, block_count, sorted_blocks);
-		printf("Ranks: ");
+		print_int_array(sorted_indices, block_count);
+		print_indexed_block_array(blocks, block_count, sorted_indices);
 		print_int_array(ranks, block_count);
 	}
 
-	suffix *block_suffixes /**  = build_suffix_array(indices, block_count) */;
+	int *block_suffixes = (int *)malloc(block_count * sizeof(int));
+	if (!unique) {
+		if (DEBUG)
+			printf("Non-unique blocks, entering recursion.\n");
+		free(sorted_indices);
+		sorted_indices = build_suffix_array(ranks, block_count);
+	}
+	for (int i = 0; i < block_count; i++) {
+		block_suffixes[i] = blocks[sorted_indices[i]].og_index;
+	}
+
+	if (DEBUG) {
+		printf("Block suffixes: ");
+		print_int_array(block_suffixes, block_count);
+	}
 
 	// Build suffix array from index 2:
 
@@ -66,27 +79,44 @@ suffix *build_suffix_array(int *str, int sz) {
 		int first = str[i];
 		int second = 0;
 		if (i + 1 < sz) {
-			second = block_suffixes[k].index;
-			k += 2;
+			second = 1; // TODO
 		}
 		tuples[j++] = create_tuple(first, second, i);
 	}
 
-	//? I think these are the even suffixes
+	if (DEBUG) {
+		printf("Constructed tuples.\n");
+		printf("Original string: ");
+		print_int_array(str, sz);
+		print_tuple_array(tuples, tuple_count);
+	}
+
 	int *sorted_tuples = tuple_radix_sort(tuples, tuple_count, sz);
-	suffix *tuple_array /** = (suffix *)malloc(tuple_count * sizeof(suffix)) */;
+
+	if (DEBUG) {
+		printf("Sorted tuple indices: ");
+		print_int_array(sorted_tuples, tuple_count);
+	}
+
+	int *tuple_suffixes = (int *)malloc(tuple_count * sizeof(int));
+	for (int i = 0; i < tuple_count; i++) {
+		tuple_suffixes[i] = tuples[sorted_tuples[i]].og_index;
+	}
+
+	if (DEBUG) {
+		printf("Tuple suffixes: ");
+		print_int_array(tuple_suffixes, tuple_count);
+	}
 
 	// Combine suffix arrays:
 
 	// Free memory:
 	free(blocks);
 	blocks = NULL;
-	free(sorted_blocks);
-	sorted_blocks = NULL;
+	free(sorted_indices);
+	sorted_indices = NULL;
 	free(ranks);
 	ranks = NULL;
-	free(tuple_array);
-	tuple_array = NULL;
 
 	return NULL;
 }

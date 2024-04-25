@@ -1,12 +1,5 @@
 #include "utils.h"
 
-suffix create_suffix(int index, int lcp) {
-	suffix s;
-	s.index = index;
-	s.lcp = lcp;
-	return s;
-}
-
 block create_block(int index) {
 	block b;
 	b.og_index = index;
@@ -33,11 +26,68 @@ tuple create_tuple(int first, int second, int index) {
 }
 
 int *tuple_radix_sort(tuple *tuples, int tuple_count, int alphabet_sz) {
-	return NULL;
+	int *indices = (int *)malloc(tuple_count * sizeof(int));
+	if (indices == NULL) {
+		fprintf(stderr,
+				"Tuple radix sort: Failed to allocate memory for indices.\n");
+		return NULL;
+	}
+
+	for (int i = 0; i < tuple_count; i++) {
+		indices[i] = i;
+	}
+	tuple_counting_sort(indices, tuples, tuple_count, alphabet_sz, 2);
+	tuple_counting_sort(indices, tuples, tuple_count, alphabet_sz, 1);
+	return indices;
+}
+
+void tuple_counting_sort(int *indices, tuple *tuples, int tuple_count,
+						 int alphabet_sz, int index) {
+	node **buckets = (node **)malloc((alphabet_sz + 1) * sizeof(node *));
+
+	// TODO: Virtual initialization
+	for (int i = 0; i < alphabet_sz + 1; i++) {
+		buckets[i] = NULL;
+	}
+
+	for (int i = 0; i < tuple_count; i++) {
+		int num =
+			index == 2 ? tuples[indices[i]].second : tuples[indices[i]].first;
+		node *n = (node *)malloc(sizeof(node));
+		n->val = indices[i];
+		n->next = NULL;
+		// TODO: Make this O(1) by keeping doubly linked list and an end pointed
+		node *head = buckets[num];
+		while (head != NULL && head->next != NULL) {
+			head = head->next;
+		}
+		if (head != NULL) {
+			head->next = n;
+		} else {
+			buckets[num] = n;
+		}
+	}
+	int j = 0;
+	int k = 0;
+
+	while (j < alphabet_sz + 1) {
+		if (buckets[j] == NULL) {
+			j++;
+			continue;
+		}
+		node *n = buckets[j];
+		buckets[j] = buckets[j]->next;
+		indices[k++] = n->val;
+		// TODO: Safety cleanup using global array
+		free(n);
+		n = NULL;
+	}
+	free(buckets);
+	buckets = NULL;
 }
 
 int *radix_sort(block *blocks, int block_count, int alphabet_sz, int *ranks,
-				bool *non_unique) {
+				bool *unique) {
 	int *indices = (int *)malloc(block_count * sizeof(int));
 	if (indices == NULL) {
 		// TODO: Do the same in other malloc calls well.
@@ -57,7 +107,7 @@ int *radix_sort(block *blocks, int block_count, int alphabet_sz, int *ranks,
 		if (!equal_blocks(blocks[indices[i - 1]], blocks[indices[i]]))
 			rank++;
 		else
-			*non_unique = true;
+			*unique = false;
 		ranks[indices[i]] = rank;
 	}
 	return indices;

@@ -10,6 +10,6 @@
  *
  * @param str A 'string' of integers
  * @param sz Size of string, including the end character 0 ('$')
- * @return suffix
+ * @return int* A suffix array
  */
-suffix *build_suffix_array(int *str, int sz);
+int *build_suffix_array(int *str, int sz);

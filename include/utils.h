@@ -31,13 +31,6 @@ struct node {
 	node *next;
 	node *prev;
 };
-
-typedef struct {
-	int index;
-	int lcp;
-} suffix;
-
-suffix create_suffix(int index, int lcp);
 typedef struct {
 	int nums[BLOCK_SIZE];
 	int og_index;
@@ -56,8 +49,11 @@ tuple create_tuple(int first, int second, int index);
 
 int *tuple_radix_sort(tuple *tuples, int tuple_count, int alphabet_sz);
 
+void tuple_counting_sort(int *indices, tuple *tuples, int tuple_count,
+						 int alphabet_sz, int index);
+
 int *radix_sort(block *blocks, int block_count, int alphabet_sz, int *ranks,
-				bool *non_unique);
+				bool *unique);
 
 void counting_sort(int *indices, block *blocks, int block_count,
 				   int alphabet_sz, int index);
@@ -91,7 +87,7 @@ void print_indexed_block_array(block *blocks, int sz, int *indices);
 
 void print_tuple(tuple t);
 
-void print_tuple_arrat(tuple *tuples, int sz);
+void print_tuple_array(tuple *tuples, int sz);
 
 void print_indexed_tuple_array(tuple *tuples, int sz, int *indices);
 
