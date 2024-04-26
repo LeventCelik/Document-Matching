@@ -83,15 +83,6 @@ int *build_suffix_array(int *str, int n) {
 			A12[recursion_string[i] - 1] = i; // Fix 1 indexing
 		}
 	}
-	free(recursion_string);
-	recursion_string = NULL;
-
-	// Transform suffix array for T' to suffix array for T
-	for (int i = 0; i < c12; i++) {
-		A12[i] = (A12[i] < c0) ? 3 * A12[i] + 1 : 3 * (A12[i] - c0) + 2;
-		// ? This may not be necessary, as the calculations can be done on the
-		// go.
-	}
 
 	// STEP 2: Construct A0 from indices 0 mod 3 using the result of STEP 1
 	// +3 not needed, no blocks = no monkey bussiness
@@ -108,9 +99,42 @@ int *build_suffix_array(int *str, int n) {
 	// STEP 3: Merge A12 and A0
 	int *suffix_array = malloc(n * sizeof(int));
 	// Calculate A12 ranks
-	int *R12 = (int *)malloc(c12 * sizeof(int));
+	int *R12 = recursion_string;
+	recursion_string = NULL;
+
+	// // Transform suffix array for T' to suffix array for T
+	// for (int i = 0; i < c12; i++) {
+	// 	A12[i] = (A12[i] < c0) ? 3 * A12[i] + 1 : 3 * (A12[i] - c0) + 2;
+	// 	// ? This may not be necessary, as the calculations can be done on the
+	// 	// go.
+	// }
+
 	for (int i = 0; i < c12; i++) {
 		R12[A12[i]] = i + 1; // Switch to 1 indexing
+	}
+
+	int i0 = 0;
+	// Skip first if n == 1 mod 3
+	int i12 = n % 3 == 1 ? 1 : 0;
+	// Actual merge sort
+	for (int i = 0; i < n; i++) {
+		int e12 = A12[i12];
+		int e0 = A0[i0];
+		if (e12 < c12) {
+			// 1 mod 3 index
+			if (str[i0] < str[i12] ||
+				(str[i0] = str[i12] && R12[i0 + 1] < R12[i12 + 1])) {
+				// 0 index is smaller
+				suffix_array[i] = e0;
+				i0++;
+			} else {
+				suffix_array[i] = e12;
+				i12++;
+			}
+		} else {
+			// 2 mod 3 index
+			if ()
+		}
 	}
 
 	recursion_depth--;
