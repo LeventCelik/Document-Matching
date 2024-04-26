@@ -1,160 +1,55 @@
 #include "utils.h"
 
-block create_block(int index) {
-	block b;
-	b.og_index = index;
-	for (int i = 0; i < BLOCK_SIZE; i++) {
-		b.nums[i] = 0;
-	}
-	return b;
-}
-
-bool equal_blocks(block b1, block b2) {
-	for (int i = 0; i < BLOCK_SIZE; i++) {
-		if (b1.nums[i] != b2.nums[i])
-			return false;
-	}
-	return true;
-}
-
-tuple create_tuple(int first, int second, int index) {
-	tuple t;
-	t.first = first;
-	t.second = second;
-	t.og_index = index;
-	return t;
-}
-
-int *tuple_radix_sort(tuple *tuples, int tuple_count, int alphabet_sz) {
-	int *indices = (int *)malloc(tuple_count * sizeof(int));
-	if (indices == NULL) {
-		fprintf(stderr,
-				"Tuple radix sort: Failed to allocate memory for indices.\n");
-		return NULL;
-	}
-
-	for (int i = 0; i < tuple_count; i++) {
-		indices[i] = i;
-	}
-	tuple_counting_sort(indices, tuples, tuple_count, alphabet_sz, 2);
-	tuple_counting_sort(indices, tuples, tuple_count, alphabet_sz, 1);
-	return indices;
-}
-
-void tuple_counting_sort(int *indices, tuple *tuples, int tuple_count,
-						 int alphabet_sz, int index) {
-	node **buckets = (node **)malloc((alphabet_sz + 1) * sizeof(node *));
-
-	// TODO: Virtual initialization
-	for (int i = 0; i < alphabet_sz + 1; i++) {
-		buckets[i] = NULL;
-	}
-
-	for (int i = 0; i < tuple_count; i++) {
-		int num =
-			index == 2 ? tuples[indices[i]].second : tuples[indices[i]].first;
-		node *n = (node *)malloc(sizeof(node));
-		n->val = indices[i];
-		n->next = NULL;
-		// TODO: Make this O(1) by keeping doubly linked list and an end pointed
-		node *head = buckets[num];
-		while (head != NULL && head->next != NULL) {
-			head = head->next;
-		}
-		if (head != NULL) {
-			head->next = n;
-		} else {
-			buckets[num] = n;
-		}
-	}
-	int j = 0;
-	int k = 0;
-
-	while (j < alphabet_sz + 1) {
-		if (buckets[j] == NULL) {
-			j++;
-			continue;
-		}
-		node *n = buckets[j];
-		buckets[j] = buckets[j]->next;
-		indices[k++] = n->val;
-		// TODO: Safety cleanup using global array
-		free(n);
-		n = NULL;
-	}
-	free(buckets);
-	buckets = NULL;
-}
-
-int *radix_sort(block *blocks, int block_count, int alphabet_sz, int *ranks,
-				bool *unique) {
-	int *indices = (int *)malloc(block_count * sizeof(int));
-	if (indices == NULL) {
-		// TODO: Do the same in other malloc calls well.
-		fprintf(stderr, "Radix sort: Failed to allocate memory for indices.\n");
-		return NULL;
-	}
-
-	// TODO: Virtual init
-	for (int i = 0; i < block_count; i++) {
-		indices[i] = i;
-	}
-	for (int i = BLOCK_SIZE - 1; i >= 0; i--) {
-		counting_sort(indices, blocks, block_count, alphabet_sz, i);
-	}
-	int rank = 0;
-	for (int i = 1; i < block_count; i++) {
-		if (!equal_blocks(blocks[indices[i - 1]], blocks[indices[i]]))
-			rank++;
-		else
-			*unique = false;
-		ranks[indices[i]] = rank;
+int *radix_sort(int *indices, int sz, int *str, int n, int alphabet_sz,
+				int digits) {
+	for (int i = digits - 1; i >= 0; i--) {
+		counting_sort(indices, sz, str, n, alphabet_sz, i);
 	}
 	return indices;
 }
 
-void counting_sort(int *indices, block *blocks, int block_count,
-				   int alphabet_sz, int index) {
-	node **buckets = (node **)malloc((alphabet_sz + 1) * sizeof(node *));
-
-	// TODO: Virtual initialization
-	for (int i = 0; i < alphabet_sz + 1; i++) {
-		buckets[i] = NULL;
+/**
+ * @brief Stable counting sort, using the keys str[indices[i]+index].
+ * Sorts the indices array. Used as reference the answer at
+ * https://stackoverflow.com/questions/2572195/how-is-counting-sort-a-stable-sort.
+ *
+ * @param indices
+ * @param sz
+ * @param str
+ * @param n
+ * @param alphabet_sz
+ * @param index
+ */
+void counting_sort(int *indices, int sz, int *str, int n, int alphabet_sz,
+				   int index) {
+	int *counts = (int *)calloc(alphabet_sz, sizeof(int));
+	// Count the elements
+	for (int i = 0; i < sz; i++) {
+		int num = str[indices[i] + index];
+		counts[num]++;
 	}
-
-	for (int i = 0; i < block_count; i++) {
-		int num = blocks[indices[i]].nums[index];
-		node *n = (node *)malloc(sizeof(node));
-		n->val = indices[i];
-		n->next = NULL;
-		// TODO: Make this O(1) by keeping doubly linked list and an end pointed
-		node *head = buckets[num];
-		while (head != NULL && head->next != NULL) {
-			head = head->next;
-		}
-		if (head != NULL) {
-			head->next = n;
-		} else {
-			buckets[num] = n;
-		}
+	// Make the counts cumulative for stability
+	for (int i = 1; i < alphabet_sz; i++) {
+		counts[i] += counts[i - 1];
 	}
-	int j = 0;
-	int k = 0;
-
-	while (j < alphabet_sz + 1) {
-		if (buckets[j] == NULL) {
-			j++;
-			continue;
-		}
-		node *n = buckets[j];
-		buckets[j] = buckets[j]->next;
-		indices[k++] = n->val;
-		// TODO: Safety cleanup using global array
-		free(n);
-		n = NULL;
+	int *sorted = (int *)malloc((sz + 3) * sizeof(int));
+	// Iterate backwards, also for stability
+	for (int i = sz - 1; i >= 0; i--) {
+		int num = str[indices[i] + index];
+		counts[num]--;
+		sorted[counts[num]] = indices[i];
 	}
-	free(buckets);
-	buckets = NULL;
+	// Transfer data to the input array
+	for (int i = 0; i < sz; i++) {
+		indices[i] = sorted[i];
+	}
+	free(counts);
+	free(sorted);
+}
+
+bool equal_blocks(int b1, int b2, int *str) {
+	return str[b1] == str[b2] && str[b1 + 1] == str[b2 + 1] &&
+		   str[b1 + 2] == str[b2 + 2];
 }
 
 int *random_int_array(int size, int max) {
@@ -182,50 +77,11 @@ void print_int_array(int *arr, int sz) {
 	printf("%d]\n", arr[sz - 1]);
 }
 
-void print_block(block b) {
-	printf("Block (%d): [", b.og_index);
-	for (int i = 0; i < BLOCK_SIZE - 1; i++) {
-		printf("%d, ", b.nums[i]);
-	}
-	printf("%d]\n", b.nums[BLOCK_SIZE - 1]);
-}
-
-void print_block_array(block *blocks, int sz) {
+void print_blocks(int *indices, int sz, int *str, int n) {
 	printf("%d blocks: [\n", sz);
 	for (int i = 0; i < sz; i++) {
-		printf("\t%d. ", i);
-		print_block(blocks[i]);
-	}
-	printf("]\n");
-}
-
-void print_indexed_block_array(block *blocks, int sz, int *indices) {
-	printf("%d blocks: [\n", sz);
-	for (int i = 0; i < sz; i++) {
-		printf("\t%d. ", i);
-		print_block(blocks[indices[i]]);
-	}
-	printf("]\n");
-}
-
-void print_tuple(tuple t) {
-	printf("Tuple (%d): (%d, %d)\n", t.og_index, t.first, t.second);
-}
-
-void print_tuple_array(tuple *tuples, int sz) {
-	printf("%d tuples: [\n", sz);
-	for (int i = 0; i < sz; i++) {
-		printf("\t%d. ", i);
-		print_tuple(tuples[i]);
-	}
-	printf("]\n");
-}
-
-void print_indexed_tuple_array(tuple *tuples, int sz, int *indices) {
-	printf("%d tuples: [\n", sz);
-	for (int i = 0; i < sz; i++) {
-		printf("\t%d. ", i);
-		print_tuple(tuples[indices[i]]);
+		printf("\t%d: [%d, %d, %d]\n", i, str[indices[i]], str[indices[i] + 1],
+			   str[indices[i] + 2]);
 	}
 	printf("]\n");
 }
