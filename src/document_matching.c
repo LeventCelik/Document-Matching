@@ -68,9 +68,9 @@ int *build_suffix_array(int *str, int n) {
 		int block_index = A12[i];
 		if (block_index % 3 == 1) {
 			recursion_string[(block_index - 1) / 3] = rank;
-			continue;
+		} else {
+			recursion_string[c0 + (block_index - 2) / 3] = rank;
 		}
-		recursion_string[c0 + (block_index - 2) / 3] = rank;
 	}
 
 	if (DEBUG) {
@@ -134,7 +134,9 @@ int *build_suffix_array(int *str, int n) {
 		printf("A0: ");
 		print_int_array(A0, c0);
 		printf("A12': ");
-		print_int_array(A12, c12);
+		print_int_array(A12, c12 + 3);
+		printf("R12: ");
+		print_int_array(R12, c12 + 3);
 	}
 
 	int i0 = 0;
@@ -144,7 +146,7 @@ int *build_suffix_array(int *str, int n) {
 	for (int i = 0; i < n; i++) {
 		int e12 = A12[i12] < c0 ? 3 * A12[i12] + 1 : 3 * (A12[i12] - c0) + 2;
 		int e0 = A0[i0];
-		if (A12[12] < c0) {
+		if (A12[i12] < c0) {
 			// 1 mod 3 index
 			if (str[e0] < str[e12] ||
 				(str[e0] == str[e12] && R12[e0 / 3] < R12[A12[i12] + c0])) {
@@ -227,4 +229,35 @@ int *build_suffix_array(int *str, int n) {
 		printf("------------------------\n");
 	}
 	return suffix_array;
+}
+
+int *kasai(int *str, int *suffix_array, int n) {
+	/**
+	 * Kasai's algorithm to compute LCP array from
+	 * the suffix array in O(n) time.
+	 */
+	int *LCP = (int *)malloc(n * sizeof(int));
+	int *ranks = (int *)malloc(n * sizeof(int));
+	// Step 1: Compute the rank array
+	for (int i = 0; i < n; i++) {
+		ranks[suffix_array[i]] = i;
+	}
+
+	// Step 2: Compute the LCP array using rank array
+	int k = 0;
+	for (int i = 0; i < n; i++) {
+		if (ranks[i] == n - 1) {
+			k = 0;
+			continue;
+		}
+		int j = suffix_array[ranks[i] + 1];
+		while (i + k < n && j + k < n && str[i + k] == str[j + k])
+			k++;
+		LCP[ranks[i]] = k;
+		if (k > 0)
+			k--;
+	}
+	LCP[n - 1] = 0;
+	free(ranks);
+	return LCP;
 }

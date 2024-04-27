@@ -56,7 +56,7 @@ else
 endif
 
 .PHONY: all
-all: $(TARGET)
+all: $(TARGET) $(TARGET_DEBUG)
 
 .PHONY: run
 run: makedir all

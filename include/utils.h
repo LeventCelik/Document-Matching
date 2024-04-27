@@ -18,6 +18,18 @@
 
 #define DEBUG false
 
+typedef struct node {
+	int size;
+	int *data;
+	struct node **children;
+} node;
+
+node *new_node(int size);
+
+void free_node(node *n);
+
+bool lcp_array_check(int *str, int *suffix_array, int *lcp, int n);
+
 bool suffix_array_check(int *str, int n, int *suffix_array);
 
 bool compare_suffixes(int *str, int n, int i, int j);
@@ -37,7 +49,7 @@ bool equal_blocks(int b1, int b2, int *str);
  * @param max Upper bound of the random numbers
  * @return unsigned int* // TODO: unsigned refactoring
  */
-int *random_int_array(int size, int max);
+int *random_string(int size, int max);
 
 /**
  * @brief Checks if an int array is sorted

@@ -1,5 +1,39 @@
 #include "utils.h"
 
+node *new_node(int size) {
+	node *n = (node *)malloc(sizeof(node));
+	n->size = size;
+	n->data = (int *)malloc(size * sizeof(int));
+	n->children = (node **)malloc((size + 1) * sizeof(node *));
+	for (int i = 0; i < size; i++) {
+		n->data[i] = 0;
+		n->children[i] = NULL;
+	}
+	n->children[size] = NULL;
+	return n;
+}
+
+void free_node(node *n) {
+	free(n->data);
+	free(n->children);
+	free(n);
+}
+
+bool lcp_array_check(int *str, int *suffix_array, int *lcp, int n) {
+	for (int i = 1; i < n; i++) {
+		int len = 0;
+		while (suffix_array[i] + len < n && suffix_array[i - 1] + len < n &&
+			   str[suffix_array[i] + len] == str[suffix_array[i - 1] + len]) {
+			len++;
+		}
+		if (len != lcp[i-1]) {
+			printf("Error at %d: %d != %d\n", i, len, lcp[i]);
+			return false;
+		}
+	}
+	return true;
+}
+
 bool suffix_array_check(int *str, int n, int *suffix_array) {
 	for (int i = 1; i < n; i++) {
 		if (!compare_suffixes(str, n, suffix_array[i - 1], suffix_array[i])) {
@@ -72,11 +106,12 @@ bool equal_blocks(int b1, int b2, int *str) {
 		   str[b1 + 2] == str[b2 + 2];
 }
 
-int *random_int_array(int size, int max) {
-	int *array = (int *)malloc(size * sizeof(int));
+int *random_string(int size, int max) {
+	int *array = (int *)malloc((size + 3) * sizeof(int));
 	for (int i = 0; i < size; i++) {
 		array[i] = rand() % (max) + 1;
 	}
+	array[size] = array[size + 1] = array[size + 2] = 0;
 	return array;
 }
 
