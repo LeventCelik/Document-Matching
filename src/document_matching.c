@@ -30,6 +30,10 @@ int *build_suffix_array(int *str, int n) {
 
 	// +3 for the three 0s at the end
 	int *A12 = malloc((c12 + 3) * sizeof(int));
+	if (A12 == NULL) {
+		fprintf(stderr, "A12 memory allocation failed.\n");
+		exit(1);
+	}
 	int j = 0;
 
 	for (int i = 0; i < n + (c0 - c1); i++) {
@@ -58,6 +62,10 @@ int *build_suffix_array(int *str, int n) {
 	}
 
 	int *recursion_string = (int *)malloc((c12 + 3) * sizeof(int));
+	if (recursion_string == NULL) {
+		fprintf(stderr, "recursion_string memory allocation failed.\n");
+		exit(1);
+	}
 	recursion_string[c12] = recursion_string[c12 + 1] =
 		recursion_string[c12 + 2] = 0;
 	// Find ranks
@@ -101,6 +109,10 @@ int *build_suffix_array(int *str, int n) {
 	// STEP 2: Construct A0 from indices 0 mod 3 using the result of STEP 1
 	// +3 not needed, no blocks = no monkey bussiness
 	int *A0 = malloc(c0 * sizeof(int));
+	if (A0 == NULL) {
+		fprintf(stderr, "A0 memory allocation failed.\n");
+		exit(1);
+	}
 	j = 0;
 	// Build A0, already sorted according to A12.
 	for (int i = 0; i < c12; i++) {
@@ -118,6 +130,10 @@ int *build_suffix_array(int *str, int n) {
 	}
 	// STEP 3: Merge A12 and A0
 	int *suffix_array = (int *)malloc(n * sizeof(int));
+	if (suffix_array == NULL) {
+		fprintf(stderr, "suffix_array memory allocation failed.\n");
+		exit(1);
+	}
 	// Name change for clarity
 	int *R12 = recursion_string;
 	recursion_string = NULL;
@@ -232,12 +248,16 @@ int *build_suffix_array(int *str, int n) {
 }
 
 int *kasai(int *str, int *suffix_array, int n) {
-	/**
-	 * Kasai's algorithm to compute LCP array from
-	 * the suffix array in O(n) time.
-	 */
 	int *LCP = (int *)malloc(n * sizeof(int));
+	if (LCP == NULL) {
+		fprintf(stderr, "LCP memory allocation failed.\n");
+		exit(1);
+	}
 	int *ranks = (int *)malloc(n * sizeof(int));
+	if (ranks == NULL) {
+		fprintf(stderr, "ranks memory allocation failed.\n");
+		exit(1);
+	}
 	// Step 1: Compute the rank array
 	for (int i = 0; i < n; i++) {
 		ranks[suffix_array[i]] = i;
@@ -260,4 +280,38 @@ int *kasai(int *str, int *suffix_array, int n) {
 	LCP[n - 1] = 0;
 	free(ranks);
 	return LCP;
+}
+
+node *build_suffix_tree(int *str, int n, int *suffix_array, int *LCP) {
+	// Recursively build the suffix tree from the suffix array and LCP array
+	node *root = new_node(0, NULL);
+	node *current = root;
+	int lcp_prev = 0;
+	for (int i = 0; i < n; i++) {
+		while (current->data > LCP[i]) {
+			current = current->parent;
+		}
+		if (current->data < LCP[i]) {
+			// Create a new node
+			node *new = new_node(LCP[i], current);
+			add_child(current, new);
+			current = new;
+		}
+		// Create a leaf node
+		node *leaf = new_node(suffix_array[i], current);
+		add_child(current, leaf);
+	}
+	return root;
+}
+
+void traverse_suffix_tree(node *root, int *suffix_array, int *index) {
+	// Traverse the suffix tree to find the suffixes
+	if (is_leaf(root)) {
+		suffix_array[(*index)++] = root->data;
+	}
+	node *child = root->first_child;
+	while (child != NULL) {
+		traverse_suffix_tree(child, suffix_array, index);
+		child = child->next_sibling;
+	}
 }

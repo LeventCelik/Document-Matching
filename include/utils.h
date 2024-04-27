@@ -19,12 +19,23 @@
 #define DEBUG false
 
 typedef struct node {
-	int size;
-	int *data;
-	struct node **children;
+	int data;
+	struct node *parent;
+	struct node *first_child;
+	struct node *last_child;
+	struct node *next_sibling;
+	struct node *prev_sibling;
 } node;
 
-node *new_node(int size);
+node *new_node(int data, node *parent);
+
+node *get_child(node *n, int i);
+
+void add_child(node *parent, node *child);
+
+bool is_leaf(node *n);
+
+void print_tree(node *root, int depth);
 
 void free_node(node *n);
 
@@ -59,6 +70,8 @@ int *random_string(int size, int max);
  * @return true if the array is sorted
  */
 bool is_arr_sorted(int *arr, int sz);
+
+bool equal_arrays(int *arr1, int *arr2, int sz);
 
 void print_int_array(int *arr, int sz);
 

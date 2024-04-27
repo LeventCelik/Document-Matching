@@ -1,21 +1,68 @@
 #include "utils.h"
 
-node *new_node(int size) {
+node *new_node(int data, node *parent) {
 	node *n = (node *)malloc(sizeof(node));
-	n->size = size;
-	n->data = (int *)malloc(size * sizeof(int));
-	n->children = (node **)malloc((size + 1) * sizeof(node *));
-	for (int i = 0; i < size; i++) {
-		n->data[i] = 0;
-		n->children[i] = NULL;
+	if (n == NULL) {
+		fprintf(stderr, "Node memory allocation failed.\n");
+		exit(1);
 	}
-	n->children[size] = NULL;
-	return n;
+	n->data = data;
+	n->parent = parent;
+	n->first_child = NULL;
+	n->last_child = NULL;
+	n->next_sibling = NULL;
+	n->prev_sibling = NULL;
+}
+
+node *get_child(node *n, int i) {
+	node *child = n->first_child;
+	while (i > 0) {
+		if (child == NULL) {
+			return NULL;
+		}
+		child = child->next_sibling;
+		i--;
+	}
+	return child;
+}
+
+void add_child(node *parent, node *child) {
+	if (parent->first_child == NULL) {
+		parent->first_child = child;
+		parent->last_child = child;
+	} else {
+		parent->last_child->next_sibling = child;
+		child->prev_sibling = parent->last_child;
+		parent->last_child = child;
+	}
+}
+
+bool is_leaf(node *n) { return n->first_child == NULL; }
+
+void print_tree(node *root, int depth) {
+	if (root == NULL) {
+		return;
+	}
+	for (int i = 0; i < depth; i++) {
+		printf("\t");
+	}
+	if (!is_leaf(root))
+		printf("I");
+	printf("%d\n", root->data);
+	node *child = root->first_child;
+	while (child != NULL) {
+		print_tree(child, depth + 1);
+		child = child->next_sibling;
+	}
 }
 
 void free_node(node *n) {
-	free(n->data);
-	free(n->children);
+	node *child = n->first_child;
+	while (child != NULL) {
+		node *next = child->next_sibling;
+		free_node(child);
+		child = next;
+	}
 	free(n);
 }
 
@@ -26,7 +73,7 @@ bool lcp_array_check(int *str, int *suffix_array, int *lcp, int n) {
 			   str[suffix_array[i] + len] == str[suffix_array[i - 1] + len]) {
 			len++;
 		}
-		if (len != lcp[i-1]) {
+		if (len != lcp[i - 1]) {
 			printf("Error at %d: %d != %d\n", i, len, lcp[i]);
 			return false;
 		}
@@ -87,6 +134,10 @@ void counting_sort(int *indices, int sz, int *str, int n, int alphabet_sz,
 		counts[i] += counts[i - 1];
 	}
 	int *sorted = (int *)malloc((sz + 3) * sizeof(int));
+	if (sorted == NULL) {
+		fprintf(stderr, "sorted memory allocation failed.\n");
+		exit(1);
+	}
 	// Iterate backwards, also for stability
 	for (int i = sz - 1; i >= 0; i--) {
 		int num = str[indices[i] + index];
@@ -107,17 +158,30 @@ bool equal_blocks(int b1, int b2, int *str) {
 }
 
 int *random_string(int size, int max) {
-	int *array = (int *)malloc((size + 3) * sizeof(int));
-	for (int i = 0; i < size; i++) {
-		array[i] = rand() % (max) + 1;
+	int *rand_arr = (int *)malloc((size + 3) * sizeof(int));
+	if (rand_arr == NULL) {
+		fprintf(stderr, "rand_arr memory allocation failed.\n");
+		exit(1);
 	}
-	array[size] = array[size + 1] = array[size + 2] = 0;
-	return array;
+	for (int i = 0; i < size; i++) {
+		rand_arr[i] = rand() % (max) + 1;
+	}
+	rand_arr[size] = rand_arr[size + 1] = rand_arr[size + 2] = 0;
+	return rand_arr;
 }
 
 bool is_arr_sorted(int *arr, int sz) {
 	for (int i = 1; i < sz; i++) {
 		if (arr[i - 1] > arr[i]) {
+			return false;
+		}
+	}
+	return true;
+}
+
+bool equal_arrays(int *arr1, int *arr2, int sz) {
+	for (int i = 0; i < sz; i++) {
+		if (arr1[i] != arr2[i]) {
 			return false;
 		}
 	}
