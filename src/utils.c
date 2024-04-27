@@ -12,6 +12,7 @@ node *new_node(int data, node *parent) {
 	n->last_child = NULL;
 	n->next_sibling = NULL;
 	n->prev_sibling = NULL;
+	return n;
 }
 
 node *get_child(node *n, int i) {

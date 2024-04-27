@@ -1,10 +1,11 @@
 #include "document_matching.h"
 #include <assert.h>
+#include <stdio.h>
 #include <time.h>
 
 #define BASE 10
 #define MAX_FACTOR 6
-#define TEST_SIZE 22
+#define TEST_SIZE 1000000
 #define TEST_COUNT 100
 
 int test_suffix_array(int sz, double *sa_time) {
@@ -73,94 +74,34 @@ void banana_test() {
 	}
 }
 
+void append_to_csv(int test_size, float sa_time, float kasai_time,
+				   float tree_time) {
+	FILE *file;
+	file = fopen("output.csv", "a");
+
+	if (file == NULL) {
+		printf("Error opening file!\n");
+		return;
+	}
+
+	// Check if the file is empty
+	fseek(file, 0, SEEK_END);
+	if (ftell(file) == 0) {
+		// If the file is empty, write the column headers
+		fprintf(file, "Test Size,SA Time,Kasai Time,Tree Time\n");
+	}
+
+	// Write the data
+	fprintf(file, "%d,%f,%f,%f\n", test_size, sa_time, kasai_time, tree_time);
+
+	fclose(file);
+}
+
 int main() {
-	// srand(time(NULL));
+	srand(time(NULL));
 	printf("Running tests...\n");
 	char spinner[] = "|/-\\";
-	printf("Testing %d suffix arrays of size %d.\n", TEST_COUNT, TEST_SIZE);
-	double total_sa_time = 0;
-	for (int i = 0; i < TEST_COUNT; i++) {
-		printf("\r[%c] Running test %d/%d...", spinner[i % 4], i + 1,
-			   TEST_COUNT);
-		fflush(stdout); // Make sure the output is immediately shown
-		double sa_time;
-		int test = test_suffix_array(TEST_SIZE, &sa_time);
-		if (test != 0) {
-			char *test_name;
-			switch (test) {
-			case -1:
-				test_name = "Suffix array check";
-				break;
-			case -2:
-				test_name = "LCP array check";
-				break;
-			case -3:
-				test_name = "Suffix tree check";
-				break;
-			default:
-				test_name = "Unknown";
-				break;
-			}
-			printf("\n%s failed.\n", test_name);
-			exit(0);
-		}
-		total_sa_time += sa_time;
-	}
-	printf("\nAll suffix array tests passed.\n");
-	printf("Average suffix array building time: %.3Lf ms.\n",
-		   total_sa_time / TEST_COUNT * 1000);
-}
-
-int main3() {
-	// srand(time(NULL));
-	printf("Running tests...\n");
-	char spinner[] = "|/-\\";
-	printf("Testing %d suffix arrays of size %d.\n", TEST_COUNT, TEST_SIZE);
-	double total_sa_time = 0;
-	double total_kasai_time = 0;
-	double total_tree_time = 0;
-	for (int i = 0; i < TEST_COUNT; i++) {
-		printf("\r[%c] Running test %d/%d...", spinner[i % 4], i + 1,
-			   TEST_COUNT);
-		fflush(stdout); // Make sure the output is immediately shown
-		double sa_time, kasai_time, tree_time;
-		int test =
-			test_suffix_tree(TEST_SIZE, &sa_time, &kasai_time, &tree_time);
-		if (test != 0) {
-			char *test_name;
-			switch (test) {
-			case -1:
-				test_name = "Suffix array check";
-				break;
-			case -2:
-				test_name = "LCP array check";
-				break;
-			case -3:
-				test_name = "Suffix tree check";
-				break;
-			default:
-				test_name = "Unknown";
-				break;
-			}
-			printf("\n%s failed.\n", test_name);
-			exit(0);
-		}
-		total_sa_time += sa_time;
-		total_kasai_time += kasai_time;
-		total_tree_time += tree_time;
-	}
-	printf("\nAll suffix array tests passed.\n");
-	printf("Average suffix array building time: %.3Lf ms.\n",
-		   total_sa_time / TEST_COUNT * 1000);
-	printf("Average LCP array building time: %.3Lf ms.\n",
-		   total_kasai_time / TEST_COUNT * 1000);
-}
-
-int main2() {
-	// srand(time(NULL));
-	printf("Running tests...\n");
-	char spinner[] = "|/-\\";
-	for (int j = 1; j <= MAX_FACTOR; j++) {
+	for (int j = 3; j <= MAX_FACTOR; j++) {
 		int test_size = (int)pow(BASE, j);
 		printf("Testing %d strings of size %d.\n", TEST_COUNT, test_size);
 		double total_sa_time = 0;
@@ -183,12 +124,16 @@ int main2() {
 			total_kasai_time += kasai_time;
 			total_tree_time += tree_time;
 		}
-		printf("\rAverage suffix array building time: %.3Lf ms.\n",
+		printf("\rAverage suffix array building time: %.3f ms.\n",
 			   total_sa_time / TEST_COUNT * 1000);
-		printf("Average LCP array building time: %.3Lf ms.\n",
+		printf("Average LCP array building time: %.3f ms.\n",
 			   total_kasai_time / TEST_COUNT * 1000);
-		printf("Average suffix tree building time: %.3Lf ms.\n",
+		printf("Average suffix tree building time: %.3f ms.\n",
 			   total_tree_time / TEST_COUNT * 1000);
+		append_to_csv(test_size, total_sa_time / TEST_COUNT * 1000,
+					  total_kasai_time / TEST_COUNT * 1000,
+					  total_tree_time / TEST_COUNT * 1000);
 	}
 	printf("\nAll tests passed.\n");
+	return 0;
 }
