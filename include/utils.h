@@ -16,7 +16,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define DEBUG true
+#define DEBUG false
+
+bool suffix_array_check(int *str, int n, int *suffix_array);
+
+bool compare_suffixes(int *str, int n, int i, int j);
 
 int *radix_sort(int *indices, int sz, int *str, int n, int alphabet_sz,
 				int digits);
@@ -24,7 +28,7 @@ int *radix_sort(int *indices, int sz, int *str, int n, int alphabet_sz,
 void counting_sort(int *indices, int sz, int *str, int n, int alphabet_sz,
 				   int index);
 
-bool equal_blocks(int b1, int b2, int* str);
+bool equal_blocks(int b1, int b2, int *str);
 /**
  * @brief Creates a random array where elements
  * are in the range 1...max

@@ -63,19 +63,27 @@ run: makedir all
 	@./$(TARGET)
 
 .PHONY: debug
-debug: $(TARGET_DEBUG)
+debug: makedir all $(TARGET_DEBUG)
+ifeq ($(OS),Windows_NT)
+	@gdb ./$(TARGET_DEBUG)
+else
 	@lldb ./$(TARGET_DEBUG)
+endif
 
 .PHONY: clean
 clean:
-	@echo CLEAN $(CLEAN_LIST)
+	@echo CLEAN $(BIN_PATH) $(OBJ_PATH) $(DBG_PATH)
 ifeq ($(OS),Windows_NT)
-	@if exist "$(CLEAN_LIST)" del /S /Q $(CLEAN_LIST)
+	@echo Deleting files and directories in $(BIN_PATH), $(OBJ_PATH), and $(DBG_PATH)
+	@if exist "$(BIN_PATH)" rmdir /S /Q "$(BIN_PATH)"
+	@if exist "$(OBJ_PATH)" rmdir /S /Q "$(OBJ_PATH)"
+	@if exist "$(DBG_PATH)" rmdir /S /Q "$(DBG_PATH)"
 	@cls
 else
-	@rm -rf $(CLEAN_LIST)
+	@rm -rf $(BIN_PATH) $(OBJ_PATH) $(DBG_PATH)
 	@clear
 endif
+
 
 .PHONY: distclean
 distclean:

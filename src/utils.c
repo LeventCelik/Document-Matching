@@ -1,5 +1,25 @@
 #include "utils.h"
 
+bool suffix_array_check(int *str, int n, int *suffix_array) {
+	for (int i = 1; i < n; i++) {
+		if (!compare_suffixes(str, n, suffix_array[i - 1], suffix_array[i])) {
+			return false;
+		}
+	}
+	return true;
+}
+
+bool compare_suffixes(int *str, int n, int i, int j) {
+	while (i < n && j < n) {
+		if (str[i] != str[j]) {
+			return str[i] < str[j];
+		}
+		i++;
+		j++;
+	}
+	return i == n;
+}
+
 int *radix_sort(int *indices, int sz, int *str, int n, int alphabet_sz,
 				int digits) {
 	for (int i = digits - 1; i >= 0; i--) {
@@ -22,14 +42,14 @@ int *radix_sort(int *indices, int sz, int *str, int n, int alphabet_sz,
  */
 void counting_sort(int *indices, int sz, int *str, int n, int alphabet_sz,
 				   int index) {
-	int *counts = (int *)calloc(alphabet_sz, sizeof(int));
+	int *counts = (int *)calloc(alphabet_sz + 1, sizeof(int));
 	// Count the elements
 	for (int i = 0; i < sz; i++) {
 		int num = str[indices[i] + index];
 		counts[num]++;
 	}
 	// Make the counts cumulative for stability
-	for (int i = 1; i < alphabet_sz; i++) {
+	for (int i = 1; i < alphabet_sz + 1; i++) {
 		counts[i] += counts[i - 1];
 	}
 	int *sorted = (int *)malloc((sz + 3) * sizeof(int));
