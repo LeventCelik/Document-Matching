@@ -4,8 +4,7 @@
 #include <time.h>
 
 #define BASE 10
-#define MAX_FACTOR 6
-#define TEST_SIZE 1000000
+#define MAX_FACTOR 5
 #define TEST_COUNT 100
 
 int test_suffix_array(int sz, double *sa_time) {
@@ -101,7 +100,7 @@ int main() {
 	srand(time(NULL));
 	printf("Running tests...\n");
 	char spinner[] = "|/-\\";
-	for (int j = 3; j <= MAX_FACTOR; j++) {
+	for (int j = 1; j <= MAX_FACTOR; j++) {
 		int test_size = (int)pow(BASE, j);
 		printf("Testing %d strings of size %d.\n", TEST_COUNT, test_size);
 		double total_sa_time = 0;
@@ -124,12 +123,15 @@ int main() {
 			total_kasai_time += kasai_time;
 			total_tree_time += tree_time;
 		}
-		printf("\rAverage suffix array building time: %.3f ms.\n",
+		printf("\r----------------------------------------\n");
+		printf("Average times for string size %d.\n", test_size);
+		printf("Suffix array building: \t\t%.3f ms.\n",
 			   total_sa_time / TEST_COUNT * 1000);
-		printf("Average LCP array building time: %.3f ms.\n",
+		printf("LCP array building: \t\t%.3f ms.\n",
 			   total_kasai_time / TEST_COUNT * 1000);
-		printf("Average suffix tree building time: %.3f ms.\n",
+		printf("Suffix tree building: \t\t%.3f ms.\n",
 			   total_tree_time / TEST_COUNT * 1000);
+		printf("----------------------------------------\n");
 		append_to_csv(test_size, total_sa_time / TEST_COUNT * 1000,
 					  total_kasai_time / TEST_COUNT * 1000,
 					  total_tree_time / TEST_COUNT * 1000);

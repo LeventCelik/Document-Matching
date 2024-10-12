@@ -1,7 +1,8 @@
 # tool macros
 CC ?= clang
 CFLAGS := -Iinclude
-DBGFLAGS := -g
+LDFLAGS := -lm
+DBGFLAGS := -g -O0
 COBJFLAGS := $(CFLAGS) -c
 
 # path macros
@@ -33,7 +34,7 @@ default: makedir all
 
 # non-phony targets
 $(TARGET): $(OBJ)
-	$(CC) -o $@ $(OBJ) $(CFLAGS)
+	$(CC) -o $@ $(OBJ) $(CFLAGS) $(LDFLAGS)
 
 $(OBJ_PATH)/%.o: $(SRC_PATH)/%.c*
 	$(CC) $(COBJFLAGS) -o $@ $<
@@ -42,7 +43,7 @@ $(DBG_PATH)/%.o: $(SRC_PATH)/%.c*
 	$(CC) $(COBJFLAGS) $(DBGFLAGS) -o $@ $<
 
 $(TARGET_DEBUG): $(OBJ_DEBUG)
-	$(CC) $(CFLAGS) $(DBGFLAGS) $(OBJ_DEBUG) -o $@
+	$(CC) $(CFLAGS) $(DBGFLAGS) $(OBJ_DEBUG) -o $@ $(LDFLAGS)
 
 # phony rules
 .PHONY: makedir

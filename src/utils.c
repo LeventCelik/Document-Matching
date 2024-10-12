@@ -190,18 +190,18 @@ bool equal_arrays(int *arr1, int *arr2, int sz) {
 }
 
 void print_int_array(int *arr, int sz) {
-	printf("[");
+	debug_print(LOG_INFO, "[");
 	for (int i = 0; i < sz - 1; i++) {
-		printf("%d, ", arr[i]);
+		debug_print(LOG_INFO, "%d, ", arr[i]);
 	}
-	printf("%d]\n", arr[sz - 1]);
+	debug_print(LOG_INFO, "%d]\n", arr[sz - 1]);
 }
 
 void print_blocks(int *indices, int sz, int *str, int n) {
-	printf("%d blocks: [\n", sz);
+	debug_print(LOG_INFO, "%d blocks: [\n", sz);
 	for (int i = 0; i < sz; i++) {
-		printf("\t%d: [%d, %d, %d]\n", i, str[indices[i]], str[indices[i] + 1],
-			   str[indices[i] + 2]);
+		debug_print(LOG_INFO, "\t%d: [%d, %d, %d]\n", i, str[indices[i]],
+					str[indices[i] + 1], str[indices[i] + 2]);
 	}
-	printf("]\n");
+	debug_print(LOG_INFO, "]\n");
 }

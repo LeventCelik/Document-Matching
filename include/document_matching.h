@@ -1,7 +1,6 @@
 /**
  * @file document_matching.h
- * @author your name (you@domain.com)
- * @brief
+ * @author Levent Çelik (celiklevent@protonmail.com)
  * @version 0.1
  * @date 2024-04-27
  *

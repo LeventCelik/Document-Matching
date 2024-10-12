@@ -15,10 +15,15 @@ int *build_suffix_array(int *str, int n) {
 	// For debug purposes
 	static int recursion_depth = -1;
 	recursion_depth++;
-	if (DEBUG) {
-		printf("\n\n\n------------------------\n");
-		printf("Recursion depth: %d\n", recursion_depth);
-		printf("------------------------\n");
+
+	debug_print(LOG_INFO, "\n\n\n------------------------\n");
+	debug_print(LOG_INFO, "Recursion depth: %d\n", recursion_depth);
+	debug_print(LOG_INFO, "------------------------\n");
+
+	if (n == 1) {
+		int *suffix_array = (int *)malloc(sizeof(int));
+		suffix_array[0] = 0;
+		return suffix_array;
 	}
 
 	// STEP 1: Construct A12 from indices 1 and 2 mod 3
@@ -26,40 +31,23 @@ int *build_suffix_array(int *str, int n) {
 	int c1 = (n + 1) / 3; // 1 mod 3 index element count
 	int c2 = n / 3;		  // 2 mod 3 index element count
 	// If n == 1 mod 3 <=> c0-c1 > 0, include the '000' in the blocks
-	int c12 = c1 + c2 + c0 - c1;
+	int c12 = c1 + c2 + (c0 - c1);
 
-	// +3 for the three 0s at the end
+	// Size c12+3 for the three 0s at the end
 	int *A12 = malloc((c12 + 3) * sizeof(int));
 	if (A12 == NULL) {
 		fprintf(stderr, "A12 memory allocation failed.\n");
 		exit(1);
 	}
-	int j = 0;
 
+	int j = 0;
 	for (int i = 0; i < n + (c0 - c1); i++) {
 		if (i % 3 != 0)
 			A12[j++] = i;
 	}
 	A12[c12] = A12[c12 + 1] = A12[c12 + 2] = 0;
 
-	if (DEBUG) {
-		printf("Original string: ");
-		print_int_array(str, n + 3);
-		printf("A12 indices: ");
-		print_int_array(A12, c12 + 3);
-		printf("Blocks:\n");
-		print_blocks(A12, c12, str, n);
-	}
-
 	radix_sort(A12, c12, str, n, n, 3);
-
-	if (DEBUG) {
-		printf("A12 sorted.\n");
-		printf("Sorted A12: ");
-		print_int_array(A12, c12 + 3);
-		printf("Sorted blocks:\n");
-		print_blocks(A12, c12, str, n);
-	}
 
 	int *recursion_string = (int *)malloc((c12 + 3) * sizeof(int));
 	if (recursion_string == NULL) {
@@ -81,10 +69,7 @@ int *build_suffix_array(int *str, int n) {
 		}
 	}
 
-	if (DEBUG) {
-		printf("Recursion string built\n");
-		print_int_array(recursion_string, c12 + 3);
-	}
+	debug_print(LOG_INFO, "Recursion string built\n");
 	if (rank != c12) {
 		// Recursively calculate the suffix array of T'
 		free(A12);
@@ -101,33 +86,22 @@ int *build_suffix_array(int *str, int n) {
 		}
 	}
 
-	if (DEBUG) {
-		printf("A12 suffix array calculated: ");
-		print_int_array(A12, c12);
-	}
-
 	// STEP 2: Construct A0 from indices 0 mod 3 using the result of STEP 1
-	// +3 not needed, no blocks = no monkey bussiness
+	// +3 not needed, we do not use "blocks".
 	int *A0 = malloc(c0 * sizeof(int));
 	if (A0 == NULL) {
 		fprintf(stderr, "A0 memory allocation failed.\n");
 		exit(1);
 	}
 	j = 0;
-	// Build A0, already sorted according to A12.
+	// Build A0, already sorted through A12.
 	for (int i = 0; i < c12; i++) {
 		if (A12[i] < c0) {
 			A0[j++] = 3 * A12[i];
 		}
 	}
 	radix_sort(A0, c0, str, n, n, 1);
-	if (DEBUG) {
-		printf("A0 sorted.\n");
-		printf("Sorted A0: ");
-		print_int_array(A0, c0);
-		printf("Original string: ");
-		print_int_array(str, n + 3);
-	}
+
 	// STEP 3: Merge A12 and A0
 	int *suffix_array = (int *)malloc(n * sizeof(int));
 	if (suffix_array == NULL) {
@@ -138,23 +112,6 @@ int *build_suffix_array(int *str, int n) {
 	int *R12 = recursion_string;
 	recursion_string = NULL;
 
-	// // Transform suffix array for T' to suffix array for T
-	// for (int i = 0; i < c12; i++) {
-	// 	A12[i] = (A12[i] < c0) ? 3 * A12[i] + 1 : 3 * (A12[i] - c0) + 2;
-	// 	// ? This may not be necessary, as the calculations can be done on the
-	// 	// go.
-	// }
-
-	if (DEBUG) {
-		printf("Before merge:\n");
-		printf("A0: ");
-		print_int_array(A0, c0);
-		printf("A12': ");
-		print_int_array(A12, c12 + 3);
-		printf("R12: ");
-		print_int_array(R12, c12 + 3);
-	}
-
 	int i0 = 0;
 	// Skip first if n == 1 mod 3
 	int i12 = n % 3 == 1 ? 1 : 0;
@@ -163,61 +120,79 @@ int *build_suffix_array(int *str, int n) {
 		int e12 = A12[i12] < c0 ? 3 * A12[i12] + 1 : 3 * (A12[i12] - c0) + 2;
 		int e0 = A0[i0];
 		if (A12[i12] < c0) {
-			// 1 mod 3 index
+			// 1 mod 3 index of A12
 			if (str[e0] < str[e12] ||
 				(str[e0] == str[e12] && R12[e0 / 3] < R12[A12[i12] + c0])) {
-				// 0 index is smaller
+				// 0 index is smaller, merge from A0
 				suffix_array[i] = e0;
 				i0++;
 				if (i0 == c0) {
 					// A0 completed, copy remaining A12
 					while (i12 < c12) {
-						suffix_array[++i] = e12;
-						i12++;
+						if (i > n - 2)
+							debug_print(LOG_ERROR,
+										"\n\n[%d] (i, n): (%d, %d)\n\n",
+										__LINE__, i + 1, n);
 						e12 = A12[i12] < c0 ? 3 * A12[i12] + 1
 											: 3 * (A12[i12] - c0) + 2;
+						i12++;
+						suffix_array[++i] = e12;
 					}
 					break;
 				}
 			} else {
-				suffix_array[i] = e12;
-				i12++;
-				if (i12 == c12) {
-					// A12 completed, copy remaining A0
-					while (i0 <= c0) {
-						suffix_array[++i] = e0;
-						e0 = A0[++i0];
-					}
-					break;
-				}
-			}
-		} else {
-			// 2 mod 3 index
-			if (str[e0] < str[e12] ||
-				(str[e0] == str[e12]) && str[e0 + 1] < str[e12 + 1] ||
-				(str[e0] == str[e12] && str[e0 + 1] == str[e12 + 1] &&
-				 R12[e0 / 3 + c0] < R12[A12[i12] + 1 - c0])) {
-				// 0 index is smaller
-				suffix_array[i] = e0;
-				i0++;
-				if (i0 == c0) {
-					// A0 completed, copy remaining A12
-					while (i12 <= c12) {
-						suffix_array[++i] = e12;
-						i12++;
-						e12 = A12[i12] < c0 ? 3 * A12[i12] + 1
-											: 3 * (A12[i12] - c0) + 2;
-					}
-					break;
-				}
-			} else {
+				// 0 index is larger, merge from A12
 				suffix_array[i] = e12;
 				i12++;
 				if (i12 == c12) {
 					// A12 completed, copy remaining A0
 					while (i0 < c0) {
+						if (i > n - 2)
+							debug_print(LOG_ERROR,
+										"\n\n[%d] (i, n): (%d, %d)\n\n",
+										__LINE__, i + 1, n);
+						e0 = A0[i0++];
 						suffix_array[++i] = e0;
-						e0 = A0[++i0];
+					}
+					break;
+				}
+			}
+		} else {
+			// 2 mod 3 index of A12
+			if (str[e0] < str[e12] ||
+				(str[e0] == str[e12] && str[e0 + 1] < str[e12 + 1]) ||
+				(str[e0] == str[e12] && str[e0 + 1] == str[e12 + 1] &&
+				 R12[e0 / 3 + c0] < R12[A12[i12] + 1 - c0])) {
+				// 0 index is smaller, merge from A0
+				suffix_array[i] = e0;
+				i0++;
+				if (i0 == c0) {
+					// A0 completed, copy remaining A12
+					while (i12 < c12) {
+						if (i > n - 2)
+							debug_print(LOG_ERROR,
+										"\n\n[%d] (i, n): (%d, %d)\n\n",
+										__LINE__, i + 1, n);
+						e12 = A12[i12] < c0 ? 3 * A12[i12] + 1
+											: 3 * (A12[i12] - c0) + 2;
+						i12++;
+						suffix_array[++i] = e12;
+					}
+					break;
+				}
+			} else {
+				// 0 index is larger, merge from A12
+				suffix_array[i] = e12;
+				i12++;
+				if (i12 == c12) {
+					// A12 completed, copy remaining A0
+					while (i0 < c0) {
+						if (i > n - 2)
+							debug_print(LOG_ERROR,
+										"\n\n[%d] (i, n): (%d, %d)\n\n",
+										__LINE__, i + 1, n);
+						e0 = A0[i0++];
+						suffix_array[++i] = e0;
 					}
 					break;
 				}
@@ -225,24 +200,23 @@ int *build_suffix_array(int *str, int n) {
 		}
 	}
 
-	if (DEBUG) {
-		printf("Suffix array calculated: ");
-		print_int_array(suffix_array, n);
-		printf("Suffixes:\n");
-		for (int i = 0; i < n; i++) {
-			printf("\t%d: ", suffix_array[i]);
-			print_int_array(&str[suffix_array[i]], n - suffix_array[i]);
-		}
+	debug_print(LOG_INFO, "Suffix array calculated: ");
+	print_int_array(suffix_array, n);
+	debug_print(LOG_INFO, "Suffixes:\n");
+#ifdef DEBUG
+	for (int i = 0; i < n; i++) {
+		printf("\t%d: ", suffix_array[i]);
+		print_int_array(&str[suffix_array[i]], n - suffix_array[i]);
 	}
+#endif
 
 	free(A0);
 	free(A12);
 	free(R12);
-	recursion_depth--;
-	if (DEBUG && recursion_depth >= 0) {
-		printf("\n\n\n------------------------\n");
-		printf("Recursion depth: %d\n", recursion_depth);
-		printf("------------------------\n");
+	if (--recursion_depth >= 0) {
+		debug_print(LOG_INFO, "\n\n\n------------------------\n");
+		debug_print(LOG_INFO, "Recursion depth: %d\n", recursion_depth);
+		debug_print(LOG_INFO, "------------------------\n");
 	}
 	return suffix_array;
 }

@@ -1,7 +1,6 @@
 /**
  * @file utils.h
- * @author your name (you@domain.com)
- * @brief
+ * @author Levent Çelik (celiklevent@protonmail.com)
  * @version 0.1
  * @date 2024-04-22
  *
@@ -12,11 +11,71 @@
 #define UTILS_H
 
 #include "string.h"
+#include <stdarg.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 
-#define DEBUG false
+typedef enum LogLevel {
+	LOG_DEBUG,
+	LOG_ERROR,
+	LOG_INFO,
+} LogLevel;
+
+#ifdef DEBUG
+
+typedef struct LogConfig {
+	const char *log_text;
+	const char *log_color;
+} LogConfig;
+
+#define COLOR_RESET "\x1b[0m"
+#define COLOR_RED "\x1b[31m"
+#define COLOR_YELLOW "\x1b[33m"
+
+static const char *parse_log_text(LogLevel log_level) {
+	switch (log_level) {
+	case LOG_DEBUG:
+		return "DEBUG";
+	case LOG_ERROR:
+		return "ERROR";
+	default:
+		return "UNKNOWN";
+	}
+}
+
+static const char *parse_log_color(LogLevel log_level) {
+	switch (log_level) {
+	case LOG_DEBUG:
+		return COLOR_YELLOW;
+	case LOG_ERROR:
+		return COLOR_RED;
+	default:
+		return COLOR_RESET;
+	}
+}
+
+static LogConfig parse_log_level(LogLevel log_level) {
+	LogConfig config;
+	config.log_text = parse_log_text(log_level);
+	config.log_color = parse_log_color(log_level);
+	return config;
+}
+
+#define debug_print(log_level, fmt, ...)                                       \
+	do {                                                                       \
+		if (log_level == LOG_INFO) {                                           \
+			printf(fmt, ##__VA_ARGS__);                                        \
+		} else {                                                               \
+			LogConfig config = parse_log_level(log_level);                     \
+			printf("%s[%s][%s:%s:%d] " fmt "%s", config.log_color,             \
+				   config.log_text, __FILE__, __func__, __LINE__,              \
+				   ##__VA_ARGS__, COLOR_RESET);                                \
+		}                                                                      \
+	} while (0)
+#else
+#define debug_print
+#endif
 
 typedef struct node {
 	int data;
@@ -76,4 +135,5 @@ bool equal_arrays(int *arr1, int *arr2, int sz);
 void print_int_array(int *arr, int sz);
 
 void print_blocks(int *indices, int sz, int *str, int n);
+
 #endif /* UTILS_H */
