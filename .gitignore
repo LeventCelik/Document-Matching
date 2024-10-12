@@ -40,3 +40,4 @@ obj/
 .vscode/
 
 # Output files
+output.csv
