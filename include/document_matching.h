@@ -14,41 +14,55 @@
 #include "utils.h"
 
 /**
- * @brief Builds a suffix array from a string preprocessed
- * into integers. The string ends with three 0s, and contains
- * no other 0s. The elements of the string are bounded by n.
+ * @brief Builds the suffix array of a string (represented
+ * as an unsigned integer array).
  *
- * @param str String represented as int array
- * @param n Size of the string, not including 0s.
- * @return int* Suffix array of the string of size n.
+ * Requires str to end with 3 0s, and contain no other 0s.
+ * Requires the elements of str to be bounded by n. Actual
+ * size of str is n + 3, including the three 0s at the end.
+ *
+ * @param str Integer array ending with 3 0s. Other elements are
+ * positive and bounded by n. Actual str size is n + 3, including
+ * the three 0s.
+ * @param n String size (not including the 0s).
+ * @return unsigned int* Suffix array of str.
  */
 int *build_suffix_array(int *str, int n);
 
 /**
- * @brief Kasai's algorithm to compute LCP array from
- * the suffix array in O(n) time.
- * @param str String represented as int array
- * @param suffix_array Suffix array of the string
- * @param n Size of the string
- * @return int* LCP array of the string
+ * @brief Builds the LCP (Longest Common Prefix) array of a string
+ * using its suffix array in linear time using Kasai's algorithm.
+ *
+ * @param str Integer array ending with 3 0s. Other elements are
+ * positive and bounded by n. Actual str size is n + 3, including
+ * the three 0s.
+ * @param suffix_array Suffix array of str.
+ * @param n String size (not including the 0s).
+ * @return unsigned int* LCP array of str.
  */
 int *kasai(int *str, int *suffix_array, int n);
 
 /**
- * @brief Builds a suffix tree from a suffix array
- * and an LCP array.
- * @param str String represented as int array
- * @param n Size of the string
- * @param suffix_array Suffix array of the string
- * @param LCP LCP array of the string
- * @return node*
+ * @brief Recursively builds the suffix tree from the suffix array and LCP
+ * array, i.e., transforms a suffix array into a suffix tree.
+ *
+ * @param str Integer array ending with 3 0s. Other elements are
+ * positive and bounded by n. Actual str size is n + 3, including
+ * the three 0s.
+ * @param n Size of str (not including the 3 0s).
+ * @param suffix_array Suffix array of str.
+ * @param LCP LCP array of str.
+ * @return node* Pointer to the root of the suffix tree.
  */
 node *build_suffix_tree(int *str, int n, int *suffix_array, int *LCP);
 
 /**
- * @brief Traverses the suffix tree and fills the suffix array
- * @param root Root of the suffix tree
- * @param suffix_array Empty array to be filled with suffixes
+ * @brief Traverses a suffix tree to create a suffix array, i.e., transforms
+ * a suffix tree into a suffix array.
+ * @param root Pointer to the root of the suffix tree.
+ * @param suffix_array Empty array to be filled with suffixes - the suffix
+ * array.
+ * @param index Recursion helper, pass the address of a 0 valued size_t.
  */
 void traverse_suffix_tree(node *root, int *suffix_array, int *index);
 

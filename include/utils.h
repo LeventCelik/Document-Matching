@@ -10,8 +10,6 @@
 #ifndef UTILS_H
 #define UTILS_H
 
-#include "string.h"
-#include <stdarg.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -117,7 +115,7 @@ bool equal_blocks(int b1, int b2, int *str);
  *
  * @param size Size of the array
  * @param max Upper bound of the random numbers
- * @return unsigned int* // TODO: unsigned refactoring
+ * @return int*
  */
 int *random_string(int size, int max);
 

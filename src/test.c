@@ -1,11 +1,10 @@
 #include "document_matching.h"
-#include <assert.h>
 #include <stdio.h>
 #include <time.h>
 
 #define BASE 10
 #define MAX_FACTOR 5
-#define TEST_COUNT 100
+#define TEST_COUNT 1000
 
 int test_suffix_array(int sz, double *sa_time) {
 	int *str = random_string(sz, sz);
@@ -97,7 +96,9 @@ void append_to_csv(int test_size, float sa_time, float kasai_time,
 }
 
 int main() {
+#ifndef DEBUG
 	srand(time(NULL));
+#endif
 	printf("Running tests...\n");
 	char spinner[] = "|/-\\";
 	for (int j = 1; j <= MAX_FACTOR; j++) {

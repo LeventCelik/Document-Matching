@@ -1,17 +1,6 @@
 #include "document_matching.h"
 
 int *build_suffix_array(int *str, int n) {
-	/**
-	 * Recursively builds the suffix array by building an array
-	 * of suffixes with starting indices 1 and 2 mod 3, and an
-	 * array of suffixes with starting indices 0 mod 3; and
-	 * combining the two.
-	 *
-	 * Requires str to end with 3 0s, and contain no other 0s.
-	 * Requires the elements of str to be bounded by sz. Actual
-	 * size of str is n + 3, including the three 0s at the end.
-	 */
-
 	// For debug purposes
 	static int recursion_depth = -1;
 	recursion_depth++;
