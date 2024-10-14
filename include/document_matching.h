@@ -10,7 +10,6 @@
 #ifndef DOCUMENT_MATCHING_H
 #define DOCUMENT_MATCHING_H
 
-#include "math.h"
 #include "utils.h"
 
 /**

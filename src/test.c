@@ -1,5 +1,5 @@
 #include "document_matching.h"
-#include <stdio.h>
+#include <math.h>
 #include <time.h>
 
 #define BASE 10
